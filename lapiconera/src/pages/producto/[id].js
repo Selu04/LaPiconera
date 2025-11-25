@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
-import Header from '../components/Header'
-import { useCart } from '../context/CartContext'
-import { useUser } from '../context/UserContext'
+import Header from '../../components/Header'
+import { useCart } from '../../context/CartContext'
+import { useUser } from '../../context/UserContext'
 import { supabase } from '../api/supabaseClient'
 
 export default function ProductoDetalle() {

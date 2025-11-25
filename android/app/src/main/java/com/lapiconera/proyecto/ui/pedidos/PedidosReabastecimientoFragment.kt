@@ -48,7 +48,6 @@ class PedidosReabastecimientoFragment : AuthenticatedFragment() {
                 confirmarMarcarCompletado(pedido)
             },
             onClickPedido = { pedido ->
-                // Navegar al detalle del pedido
                 val action = PedidosReabastecimientoFragmentDirections
                     .actionPedidosReabastecimientoFragmentToDetallePedidoFragment(pedido)
                 findNavController().navigate(action)

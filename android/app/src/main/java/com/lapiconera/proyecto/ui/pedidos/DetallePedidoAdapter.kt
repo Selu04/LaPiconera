@@ -39,7 +39,6 @@ class DetallePedidoAdapter(
         holder.tvNombre.text = item.name
         holder.tvCantidad.text = item.cantidad.toString()
 
-        // Cargar imagen del producto
         Glide.with(holder.itemView.context)
             .load(item.image)
             .centerCrop()

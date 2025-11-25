@@ -68,7 +68,6 @@ class DetallePedidoFragment : AuthenticatedFragment() {
             binding.btnMarcarCompletado.visibility = View.VISIBLE
         }
 
-        // Copiar items para edición
         itemsEditados.clear()
         itemsEditados.addAll(pedido.items.map { it.copy() })
 
@@ -131,8 +130,6 @@ class DetallePedidoFragment : AuthenticatedFragment() {
             return
         }
 
-        // Aquí se podría implementar la llamada a la API para actualizar el pedido
-        // Por ahora solo mostramos confirmación
         AlertDialog.Builder(requireContext())
             .setTitle("Guardar Cambios")
             .setMessage("Los cambios se han guardado localmente.\n\nNota: Para guardar en el servidor, implementa el endpoint PUT en la API.")

@@ -19,19 +19,15 @@ interface ApiService {
     @POST("AuthAndroid")
     suspend fun login(@Body request: LoginRequest): Response<LoginResponse>
 
-    // GET categorías
     @GET("categorias")
     suspend fun getCategorias(): Response<List<Categoria>>
 
-    // GET tags
     @GET("tags")
     suspend fun getTags(): Response<List<Tag>>
 
-    // GET alérgenos
     @GET("alergenos")
     suspend fun getAlergenos(): Response<List<Alergeno>>
 
-    // GET productos con filtros opcionales
     @GET("productos")
     suspend fun getProductos(
         @Query("categoria") categoria: String? = null,
@@ -43,31 +39,24 @@ interface ApiService {
         @Query("todos") todos: Boolean? = null
     ): Response<List<Producto>>
 
-    // POST crear producto
     @POST("productos")
     suspend fun crearProducto(@Body producto: ProductoRequest): Response<Producto>
 
-    // PUT actualizar producto
     @PUT("productos")
     suspend fun actualizarProducto(@Body request: ProductoUpdateRequest): Response<Producto>
 
-    // PUT actualizar stock
     @PUT("productos")
     suspend fun actualizarStock(@Body request: StockUpdateRequest): Response<Producto>
 
-    // DELETE eliminar producto
     @retrofit2.http.HTTP(method = "DELETE", path = "productos", hasBody = true)
     suspend fun eliminarProducto(@Body request: DeleteProductoRequest): Response<Unit>
 
-    // GET pedidos de reabastecimiento
     @GET("reabastecimiento")
     suspend fun getPedidosReabastecimiento(): Response<List<com.lapiconera.proyecto.data.model.PedidoReabastecimiento>>
 
-    // POST crear pedido de reabastecimiento
     @POST("reabastecimiento")
     suspend fun crearPedidoReabastecimiento(@Body request: Map<String, Any>): Response<com.lapiconera.proyecto.data.model.PedidoReabastecimiento>
 
-    // PUT marcar como reabastecido
     @PUT("reabastecimiento")
     suspend fun marcarComoReabastecido(@Body request: Map<String, Any>): Response<com.lapiconera.proyecto.data.model.PedidoReabastecimiento>
 }

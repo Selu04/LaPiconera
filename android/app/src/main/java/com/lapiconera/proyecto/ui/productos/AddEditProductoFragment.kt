@@ -88,7 +88,6 @@ class AddEditProductoFragment : AuthenticatedFragment() {
         setupBarcodeScannerButton()
         setupGuardarButton()
 
-        // Cargar datos desde la API
         viewModel.cargarCategorias()
         viewModel.cargarTags()
         viewModel.cargarAlergenos()
@@ -126,15 +125,14 @@ class AddEditProductoFragment : AuthenticatedFragment() {
                 text = tag.name
                 isCheckable = true
 
-                // Colores para estado no seleccionado
                 chipBackgroundColor = ColorStateList(
                     arrayOf(
                         intArrayOf(android.R.attr.state_checked),
                         intArrayOf(-android.R.attr.state_checked)
                     ),
                     intArrayOf(
-                        Color.parseColor("#4CAF50"), // Verde cuando está seleccionado
-                        Color.parseColor("#F5F5F5")  // Gris claro cuando no está seleccionado
+                        Color.parseColor("#4CAF50"),
+                        Color.parseColor("#F5F5F5")
                     )
                 )
 
@@ -144,8 +142,8 @@ class AddEditProductoFragment : AuthenticatedFragment() {
                         intArrayOf(-android.R.attr.state_checked)
                     ),
                     intArrayOf(
-                        Color.WHITE,                   // Blanco cuando está seleccionado
-                        Color.parseColor("#212121")    // Negro cuando no está seleccionado
+                        Color.WHITE,
+                        Color.parseColor("#212121")
                     )
                 ))
 
@@ -156,12 +154,11 @@ class AddEditProductoFragment : AuthenticatedFragment() {
                         intArrayOf(-android.R.attr.state_checked)
                     ),
                     intArrayOf(
-                        Color.parseColor("#4CAF50"), // Verde cuando está seleccionado
-                        Color.parseColor("#BDBDBD")  // Gris cuando no está seleccionado
+                        Color.parseColor("#4CAF50"),
+                        Color.parseColor("#BDBDBD")
                     )
                 )
 
-                // Si estamos editando, marcar los chips seleccionados
                 producto?.tags?.let { productTags ->
                     isChecked = productTags.contains(tag.id)
                     if (isChecked) tag.id?.let { selectedTags.add(it) }
@@ -186,15 +183,14 @@ class AddEditProductoFragment : AuthenticatedFragment() {
                 text = "${alergeno.icon ?: "⚠️"} ${alergeno.name}"
                 isCheckable = true
 
-                // Colores para estado seleccionado/no seleccionado
                 chipBackgroundColor = ColorStateList(
                     arrayOf(
                         intArrayOf(android.R.attr.state_checked),
                         intArrayOf(-android.R.attr.state_checked)
                     ),
                     intArrayOf(
-                        Color.parseColor("#EF5350"), // Rojo cuando está seleccionado
-                        Color.parseColor("#FFEBEE")  // Rosa muy claro cuando no está seleccionado
+                        Color.parseColor("#EF5350"),
+                        Color.parseColor("#FFEBEE")
                     )
                 )
 
@@ -204,8 +200,8 @@ class AddEditProductoFragment : AuthenticatedFragment() {
                         intArrayOf(-android.R.attr.state_checked)
                     ),
                     intArrayOf(
-                        Color.WHITE,                   // Blanco cuando está seleccionado
-                        Color.parseColor("#C62828")    // Rojo oscuro cuando no está seleccionado
+                        Color.WHITE,
+                        Color.parseColor("#C62828")
                     )
                 ))
 
@@ -216,12 +212,11 @@ class AddEditProductoFragment : AuthenticatedFragment() {
                         intArrayOf(-android.R.attr.state_checked)
                     ),
                     intArrayOf(
-                        Color.parseColor("#EF5350"), // Rojo cuando está seleccionado
-                        Color.parseColor("#EF5350")  // Rojo cuando no está seleccionado
+                        Color.parseColor("#EF5350"),
+                        Color.parseColor("#EF5350")
                     )
                 )
 
-                // Si estamos editando, marcar los chips seleccionados
                 producto?.allergens?.let { productAllergens ->
                     isChecked = productAllergens.contains(alergeno.id)
                     if (isChecked) alergeno.id?.let { selectedAlergenos.add(it) }
@@ -315,7 +310,6 @@ class AddEditProductoFragment : AuthenticatedFragment() {
 
         dialog.show()
 
-        // Iniciar cámara en el diálogo
         val previewView = dialogView.findViewById<androidx.camera.view.PreviewView>(
             com.lapiconera.proyecto.R.id.previewView
         )
@@ -388,7 +382,6 @@ class AddEditProductoFragment : AuthenticatedFragment() {
                     }
                 }
                 .addOnFailureListener {
-                    // Error al escanear
                 }
                 .addOnCompleteListener {
                     imageProxy.close()
@@ -434,7 +427,6 @@ class AddEditProductoFragment : AuthenticatedFragment() {
             producto?.image
         }
 
-        // Obtener el ID de la categoría seleccionada
         val selectedPosition = binding.spinnerCategoria.selectedItemPosition
         val categoriaId = if (selectedPosition >= 0 && selectedPosition < categoriasList.size) {
             categoriasList[selectedPosition].id
@@ -459,10 +451,8 @@ class AddEditProductoFragment : AuthenticatedFragment() {
                 binding.btnGuardar.isEnabled = false
 
                 val result = if (producto == null) {
-                    // Crear nuevo producto
                     repository.crearProducto(nuevoProductoRequest)
                 } else {
-                    // Actualizar producto existente
                     repository.actualizarProducto(producto!!.id!!, nuevoProductoRequest)
                 }
 

@@ -76,7 +76,6 @@ class ProductosFragment : AuthenticatedFragment() {
 
         cameraExecutor = Executors.newSingleThreadExecutor()
 
-        // Configurar toolbar con menú
         binding.toolbar.setOnMenuItemClickListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.action_add_producto -> {
@@ -117,11 +116,9 @@ class ProductosFragment : AuthenticatedFragment() {
             override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
                 categoriaSeleccionada = parent.getItemAtPosition(position) as String
 
-                // Determinar el ID de la categoría según la posición
                 categoriaIdSeleccionada = when {
                     categoriaSeleccionada == "Todas" || categoriaSeleccionada == "Bajo Stock" -> null
                     else -> {
-                        // Restar 2 por "Todas" y "Bajo Stock"
                         val categoriaIndex = position - 2
                         if (categoriaIndex >= 0 && categoriaIndex < categoriasList.size) {
                             categoriasList[categoriaIndex].id
@@ -155,7 +152,6 @@ class ProductosFragment : AuthenticatedFragment() {
             true
         }
 
-        // Listeners para filtro de stock
         binding.etStockMin.addTextChangedListener(object : android.text.TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
@@ -176,7 +172,6 @@ class ProductosFragment : AuthenticatedFragment() {
 
         setupObservers()
 
-        // Cargar categorías y productos
         Log.d(TAG, "Cargando categorías y productos...")
         viewModel.cargarCategorias()
         viewModel.cargarProductos()
@@ -184,7 +179,6 @@ class ProductosFragment : AuthenticatedFragment() {
 
     override fun onResume() {
         super.onResume()
-        // Recargar productos cada vez que se vuelve al fragment
         Log.d(TAG, "onResume: Recargando productos...")
         viewModel.cargarProductos()
     }
@@ -215,7 +209,6 @@ class ProductosFragment : AuthenticatedFragment() {
     }
 
     private fun configurarSpinnerCategorias() {
-        // Crear lista con "Todas" y "Bajo Stock" al inicio, luego las categorías de la API
         val nombresCategorias = mutableListOf("Todas", "Bajo Stock")
         nombresCategorias.addAll(categoriasList.map { it.name })
 
@@ -249,27 +242,21 @@ class ProductosFragment : AuthenticatedFragment() {
                 "Todas" -> true
                 "Bajo Stock" -> (it.stockQuantity ?: 0) <= (it.minStock ?: 5)
                 else -> {
-                    // Filtrar por ID de categoría
                     it.category == categoriaIdSeleccionada
                 }
             }
 
-            // Filtro de rango de stock
             val stockProducto = it.stockQuantity ?: 0
             val coincideStock = when {
-                // Si ambos están definidos: rango completo
                 stockMin != null && stockMax != null -> {
                     stockProducto >= stockMin && stockProducto <= stockMax
                 }
-                // Solo mínimo: productos con stock >= mínimo
                 stockMin != null && stockMax == null -> {
                     stockProducto >= stockMin
                 }
-                // Solo máximo: productos con stock <= máximo
                 stockMin == null && stockMax != null -> {
                     stockProducto <= stockMax
                 }
-                // Ninguno definido: mostrar todos
                 else -> true
             }
 
@@ -359,7 +346,6 @@ class ProductosFragment : AuthenticatedFragment() {
 
         dialog.show()
 
-        // Iniciar cámara
         val previewView = dialogView.findViewById<androidx.camera.view.PreviewView>(R.id.previewView)
 
         val cameraProviderFuture = ProcessCameraProvider.getInstance(requireContext())
@@ -376,7 +362,6 @@ class ProductosFragment : AuthenticatedFragment() {
                 .also {
                     it.setAnalyzer(cameraExecutor) { imageProxy ->
                         procesarImagenBarcode(imageProxy) { barcode ->
-                            // Poner el código de barras en el SearchView
                             binding.searchView.setQuery(barcode, true)
                             dialog.dismiss()
                             cameraProvider.unbindAll()

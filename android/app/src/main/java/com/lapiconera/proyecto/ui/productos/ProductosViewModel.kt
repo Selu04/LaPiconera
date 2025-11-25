@@ -99,7 +99,7 @@ class ProductosViewModel : ViewModel() {
                 result.onSuccess { producto ->
                     Log.d(TAG, "Producto creado: ID=${producto.id}")
                     onSuccess(producto)
-                    cargarProductos() // Recargar la lista
+                    cargarProductos()
                 }.onFailure { error ->
                     Log.e(TAG, "Error al crear producto: ${error.message}", error)
                     _errorMessage.postValue(error.message ?: "Error al crear producto")
@@ -125,7 +125,7 @@ class ProductosViewModel : ViewModel() {
                 result.onSuccess { producto ->
                     Log.d(TAG, "Producto actualizado: ID=${producto.id}")
                     onSuccess()
-                    cargarProductos() // Recargar la lista
+                    cargarProductos()
                 }.onFailure { error ->
                     Log.e(TAG, "Error al actualizar producto: ${error.message}", error)
                     _errorMessage.postValue(error.message ?: "Error al actualizar producto")
@@ -151,7 +151,7 @@ class ProductosViewModel : ViewModel() {
                 result.onSuccess { producto ->
                     Log.d(TAG, "Stock actualizado: ID=${producto.id}, nuevo stock=${producto.stockQuantity}")
                     onSuccess()
-                    cargarProductos() // Recargar la lista
+                    cargarProductos()
                 }.onFailure { error ->
                     Log.e(TAG, "Error al actualizar stock: ${error.message}", error)
                     _errorMessage.postValue(error.message ?: "Error al actualizar stock")
@@ -189,7 +189,7 @@ class ProductosViewModel : ViewModel() {
                 result.onSuccess {
                     Log.d(TAG, "Producto eliminado: ID=$id")
                     onSuccess()
-                    cargarProductos() // Recargar la lista
+                    cargarProductos()
                 }.onFailure { error ->
                     Log.e(TAG, "Error al eliminar producto: ${error.message}", error)
                     _errorMessage.postValue(error.message ?: "Error al eliminar producto")
@@ -234,7 +234,6 @@ class ProductosViewModel : ViewModel() {
                     _categorias.postValue(categorias)
                 }.onFailure { error ->
                     Log.e(TAG, "Error al cargar categorías: ${error.message}", error)
-                    // Fallback a categorías por defecto si falla la API
                     _categorias.postValue(emptyList())
                 }
             } catch (e: Exception) {

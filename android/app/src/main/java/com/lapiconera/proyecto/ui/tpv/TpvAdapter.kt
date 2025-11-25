@@ -69,14 +69,11 @@ class TpvAdapter(
     override fun getItemCount(): Int = items.size
 
     fun addItem(item: ItemTPV) {
-        // Verificar si el producto ya existe en la lista
         val existingIndex = items.indexOfFirst { it.productoId == item.productoId }
         if (existingIndex >= 0) {
-            // Si existe, aumentar cantidad
             items[existingIndex].cantidad += item.cantidad
             notifyItemChanged(existingIndex)
         } else {
-            // Si no existe, agregar nuevo
             items.add(item)
             notifyItemInserted(items.size - 1)
         }

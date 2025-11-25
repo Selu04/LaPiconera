@@ -43,14 +43,12 @@ data class ItemReabastecimiento(
     val currentStock: Int? = null,
 
     @SerializedName("imagen")  // API devuelve "imagen" no "image"
-    val image: String? = null // Imagen del producto
+    val image: String? = null
 ) : Parcelable {
-    // Método para copiar con nueva cantidad
     fun withCantidad(newCantidad: Int): ItemReabastecimiento {
         return copy(cantidad = newCantidad)
     }
 
-    // Override hashCode para manejar correctamente los valores
     override fun hashCode(): Int {
         var result = id.hashCode()
         result = 31 * result + name.hashCode()
@@ -60,7 +58,6 @@ data class ItemReabastecimiento(
         return result
     }
 
-    // Override equals para consistencia con hashCode
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false

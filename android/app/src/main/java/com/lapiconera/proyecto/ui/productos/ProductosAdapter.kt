@@ -40,7 +40,6 @@ class ProductosAdapter(
         holder.tvNombre.text = producto.name
         holder.tvStock.text = stock.toString()
 
-        // Cambiar color del stock según cantidad (sutiles)
         if (stock != null) {
             when {
                 stock == 0 -> {
@@ -110,7 +109,6 @@ class ProductosAdapter(
             .setNegativeButton("Cancelar", null)
             .create()
 
-        // Botones rápidos
         val btn1 = dialogView.findViewById<MaterialButton>(R.id.btn1)
         val btn5 = dialogView.findViewById<MaterialButton>(R.id.btn5)
         val btn10 = dialogView.findViewById<MaterialButton>(R.id.btn10)

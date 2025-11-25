@@ -17,7 +17,6 @@ abstract class AuthenticatedFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Verificar autenticación
         if (!isUserLoggedIn()) {
             redirectToLogin()
             return
@@ -37,17 +36,13 @@ abstract class AuthenticatedFragment : Fragment() {
      */
     private fun redirectToLogin() {
         try {
-            // Limpiar sesión
             SessionManager.clearSession(requireContext())
 
-            // Navegar al login
             findNavController().navigate(R.id.loginFragment)
         } catch (e: Exception) {
-            // Si falla la navegación, intentar de nuevo
             try {
                 findNavController().popBackStack(R.id.loginFragment, false)
             } catch (ex: Exception) {
-                // Último recurso
                 requireActivity().finish()
             }
         }

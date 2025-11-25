@@ -36,7 +36,6 @@ class PedidosAdapter(
 
         holder.tvUserName.text = pedido.userName
 
-        // Estado
         if (pedido.status == "completed") {
             holder.tvStatus.text = "Completado"
             holder.tvStatus.setBackgroundResource(R.drawable.bg_status_completed)
@@ -47,20 +46,16 @@ class PedidosAdapter(
             holder.btnMarcarCompletado.visibility = View.VISIBLE
         }
 
-        // Fecha
         holder.tvFecha.text = formatearFecha(pedido.createdAt)
 
-        // Productos
         val totalProductos = pedido.items.size
         val totalUnidades = pedido.items.sumOf { it.cantidad }
         holder.tvProductos.text = "$totalProductos producto(s) - $totalUnidades unidades"
 
-        // Click en la tarjeta para ver detalle
         holder.itemView.setOnClickListener {
             onClickPedido(pedido)
         }
 
-        // Botón marcar completado
         holder.btnMarcarCompletado.setOnClickListener {
             onMarcarCompletado(pedido)
         }

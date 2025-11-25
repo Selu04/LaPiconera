@@ -3,6 +3,7 @@ import { useRouter } from 'next/router'
 import Header from '../../components/Header'
 import { useCart } from '../../context/CartContext'
 import { useUser } from '../../context/UserContext'
+import { useNotification } from '../../context/NotificationContext'
 import { supabase } from '../api/supabaseClient'
 
 export default function ProductoDetalle() {
@@ -10,6 +11,7 @@ export default function ProductoDetalle() {
   const { id } = router.query
   const { addToCart } = useCart()
   const { usuario } = useUser()
+  const { showSuccess, showError } = useNotification()
   
   const [producto, setProducto] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -44,7 +46,7 @@ export default function ProductoDetalle() {
       setAlergenosSeleccionados(data.allergens || [])
     } catch (error) {
       console.error('Error al cargar producto:', error)
-      alert('Error al cargar el producto')
+      showError('Error al cargar el producto')
     } finally {
       setLoading(false)
     }
@@ -67,17 +69,17 @@ export default function ProductoDetalle() {
 
   const handleAddToCart = () => {
     if (!usuario) {
-      alert('Debes iniciar sesión para añadir productos al carrito')
+      showError('Debes iniciar sesión para añadir productos al carrito')
       router.push('/login')
       return
     }
-    addToCart(producto)
-    alert('Producto añadido al carrito')
+    addToCart(producto, showError)
+    showSuccess('Producto añadido al carrito')
   }
 
   const agregarFAQ = async () => {
     if (!nuevaPregunta.trim() || !nuevaRespuesta.trim()) {
-      alert('Por favor completa la pregunta y respuesta')
+      showError('Por favor completa la pregunta y respuesta')
       return
     }
 
@@ -100,10 +102,10 @@ export default function ProductoDetalle() {
       setNuevaPregunta('')
       setNuevaRespuesta('')
       setEditandoFAQ(false)
-      alert('Pregunta frecuente añadida correctamente')
+      showSuccess('Pregunta frecuente añadida correctamente')
     } catch (error) {
       console.error('Error:', error)
-      alert('Error al añadir la pregunta')
+      showError('Error al añadir la pregunta')
     }
   }
 
@@ -121,10 +123,10 @@ export default function ProductoDetalle() {
 
       setFaqs(nuevasFAQs)
       setEditandoFAQIndex(null)
-      alert('Pregunta actualizada correctamente')
+      showSuccess('Pregunta actualizada correctamente')
     } catch (error) {
       console.error('Error:', error)
-      alert('Error al actualizar la pregunta')
+      showError('Error al actualizar la pregunta')
     }
   }
 
@@ -142,10 +144,10 @@ export default function ProductoDetalle() {
       if (error) throw error
 
       setFaqs(nuevasFAQs)
-      alert('Pregunta eliminada correctamente')
+      showSuccess('Pregunta eliminada correctamente')
     } catch (error) {
       console.error('Error:', error)
-      alert('Error al eliminar la pregunta')
+      showError('Error al eliminar la pregunta')
     }
   }
 
@@ -170,10 +172,10 @@ export default function ProductoDetalle() {
 
       setProducto({ ...producto, allergens: alergenosSeleccionados })
       setEditandoAlergenos(false)
-      alert('Alérgenos actualizados correctamente')
+      showSuccess('Alérgenos actualizados correctamente')
     } catch (error) {
       console.error('Error:', error)
-      alert('Error al actualizar alérgenos')
+      showError('Error al actualizar alérgenos')
     }
   }
 

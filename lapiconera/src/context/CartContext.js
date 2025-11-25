@@ -3,18 +3,20 @@ import { supabase } from '../pages/api/supabaseClient'
 const CartContext = createContext()
 export const CartProvider = ({ children }) => {
   const [items, setItems] = useState([])
-  const addToCart = async (producto) => {
+  const addToCart = async (producto, showError = null) => {
     const { data, error } = await supabase
       .from('products')
       .select('stock_quantity')
       .eq('id', producto.id)
       .single()
     if (error) {
-      alert('Error comprobando stock')
+      if (showError) showError('Error comprobando stock')
+      else console.error('Error comprobando stock')
       return
     }
     if (!data || data.stock_quantity <= 0) {
-      alert('Producto sin stock disponible')
+      if (showError) showError('Producto sin stock disponible')
+      else console.error('Producto sin stock disponible')
       return
     }
     setItems(prev => {
@@ -27,7 +29,8 @@ export const CartProvider = ({ children }) => {
               : item
           )
         } else {
-          alert('No hay más stock disponible de este producto')
+          if (showError) showError('No hay más stock disponible de este producto')
+          else console.error('No hay más stock disponible')
           return prev
         }
       }
@@ -48,7 +51,7 @@ export const CartProvider = ({ children }) => {
       )
     )
   }
-  const increment = async (id) => {
+  const increment = async (id, showError = null) => {
     const item = items.find(i => i.id === id)
     if (!item) return
     const { data, error } = await supabase
@@ -56,8 +59,16 @@ export const CartProvider = ({ children }) => {
       .select('stock_quantity')
       .eq('id', id)
       .single()
-    if (error) return alert('Error comprobando stock')
-    if (item.qty >= (data?.stock_quantity || 0)) return alert('Sin más stock disponible')
+    if (error) {
+      if (showError) showError('Error comprobando stock')
+      else console.error('Error comprobando stock')
+      return
+    }
+    if (item.qty >= (data?.stock_quantity || 0)) {
+      if (showError) showError('Sin más stock disponible')
+      else console.error('Sin más stock disponible')
+      return
+    }
     updateQty(id, item.qty + 1)
   }
   const decrement = (id) => {

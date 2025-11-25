@@ -219,7 +219,7 @@ export default function Header() {
         abierto={carritoAbierto}
         onClose={() => setCarritoAbierto(false)}
         items={items}
-        onIncrement={increment}
+        onIncrement={(id) => increment(id, showError)}
         onDecrement={decrement}
         onRemove={removeFromCart}
         onClear={clearCart}

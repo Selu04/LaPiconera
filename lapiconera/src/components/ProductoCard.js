@@ -6,7 +6,7 @@ import { useNotification } from '../context/NotificationContext'
 export default function ProductoCard({ producto, allTags = [], allAlergenos = [] }) {
   const { addToCart } = useCart()
   const { usuario, loading } = useUser()
-  const { showWarning } = useNotification()
+  const { showWarning, showError } = useNotification()
   const router = useRouter()
   const handleAddToCart = (e) => {
     e.stopPropagation()
@@ -16,7 +16,7 @@ export default function ProductoCard({ producto, allTags = [], allAlergenos = []
       router.push('/login')
       return
     }
-    addToCart(producto)
+    addToCart(producto, showError)
   }
   const handleCardClick = () => {
     router.push(`/producto/${producto.id}`)
@@ -119,4 +119,4 @@ export default function ProductoCard({ producto, allTags = [], allAlergenos = []
       </div>
     </div>
   )
-}
+}

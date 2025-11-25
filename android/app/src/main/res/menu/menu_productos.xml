@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/action_add_producto"
+        android:icon="@android:drawable/ic_input_add"
+        android:title="Agregar Producto"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_tpv"
+        android:icon="@android:drawable/ic_menu_edit"
+        android:title="TPV - Gestión de Stock"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_pedidos_reabastecimiento"
+        android:icon="@android:drawable/ic_menu_agenda"
+        android:title="Pedidos de Reabastecimiento"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_cerrar_sesion"
+        android:icon="@android:drawable/ic_lock_power_off"
+        android:title="Cerrar Sesión"
+        app:showAsAction="never" />
+</menu>
+

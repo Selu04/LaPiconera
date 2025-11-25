@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/loginFragment">
+
+    <fragment
+        android:id="@+id/loginFragment"
+        android:name="com.lapiconera.proyecto.ui.login.LoginFragment"
+        android:label="Login">
+        <action
+            android:id="@+id/action_loginFragment_to_productosFragment"
+            app:destination="@id/productosFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/productosFragment"
+        android:name="com.lapiconera.proyecto.ui.productos.ProductosFragment"
+        android:label="Productos">
+        <action
+            android:id="@+id/action_productosFragment_to_addEditProductoFragment"
+            app:destination="@id/addEditProductoFragment" />
+        <action
+            android:id="@+id/action_productosFragment_to_loginFragment"
+            app:destination="@id/loginFragment" />
+        <action
+            android:id="@+id/action_productosFragment_to_tpvFragment"
+            app:destination="@id/tpvFragment" />
+        <action
+            android:id="@+id/action_productosFragment_to_pedidosReabastecimientoFragment"
+            app:destination="@id/pedidosReabastecimientoFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/addEditProductoFragment"
+        android:name="com.lapiconera.proyecto.ui.productos.AddEditProductoFragment"
+        android:label="Agregar/Editar Producto">
+        <argument
+            android:name="producto"
+            app:argType="com.lapiconera.proyecto.data.model.Producto"
+            app:nullable="true" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/tpvFragment"
+        android:name="com.lapiconera.proyecto.ui.tpv.TpvFragment"
+        android:label="TPV - Gestión de Stock" />
+
+    <fragment
+        android:id="@+id/pedidosReabastecimientoFragment"
+        android:name="com.lapiconera.proyecto.ui.pedidos.PedidosReabastecimientoFragment"
+        android:label="Pedidos de Reabastecimiento">
+        <action
+            android:id="@+id/action_pedidosReabastecimientoFragment_to_detallePedidoFragment"
+            app:destination="@id/detallePedidoFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/detallePedidoFragment"
+        android:name="com.lapiconera.proyecto.ui.pedidos.DetallePedidoFragment"
+        android:label="Detalle del Pedido">
+        <argument
+            android:name="pedido"
+            app:argType="com.lapiconera.proyecto.data.model.PedidoReabastecimiento" />
+    </fragment>
+</navigation>

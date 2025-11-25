@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">Proyecto</string>
+
+    <!-- Login -->
+    <string name="login_title">Bienvenido</string>
+    <string name="login_subtitle">Inicia sesión en tu cuenta</string>
+    <string name="username_hint">Usuario</string>
+    <string name="password_hint">Contraseña</string>
+    <string name="login_button">Iniciar Sesión</string>
+    <string name="app_logo">Logo de la aplicación</string>
+</resources>

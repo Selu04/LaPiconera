@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="3dp"
+    app:cardBackgroundColor="#FFFFFF"
+    app:strokeWidth="0dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp">
+
+        <!-- Imagen del Producto -->
+        <ImageView
+            android:id="@+id/ivProducto"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:scaleType="centerCrop"
+            android:background="#F5F5F5"
+            android:contentDescription="Imagen del producto"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <!-- Nombre del Producto -->
+        <TextView
+            android:id="@+id/tvNombre"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="8dp"
+            android:text="Nombre del Producto"
+            android:textColor="#212121"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:maxLines="2"
+            android:ellipsize="end"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/ivProducto"
+            app:layout_constraintTop_toTopOf="@id/ivProducto" />
+
+        <!-- Stock -->
+        <TextView
+            android:id="@+id/tvStockLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="4dp"
+            android:text="Stock: "
+            android:textColor="#757575"
+            android:textSize="14sp"
+            app:layout_constraintStart_toEndOf="@id/ivProducto"
+            app:layout_constraintTop_toBottomOf="@id/tvNombre" />
+
+        <TextView
+            android:id="@+id/tvStock"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0"
+            android:textColor="#212121"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toEndOf="@id/tvStockLabel"
+            app:layout_constraintTop_toTopOf="@id/tvStockLabel" />
+
+        <!-- Botones de Stock -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:orientation="horizontal"
+            android:gravity="start"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/ivProducto"
+            app:layout_constraintTop_toBottomOf="@id/tvStockLabel">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnRestar"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:layout_marginEnd="8dp"
+                android:contentDescription="Reducir stock"
+                android:text="Reducir"
+                android:textSize="13sp"
+                android:textColor="#D32F2F"
+                android:textStyle="bold"
+                android:backgroundTint="#FDE0E0"
+                app:cornerRadius="8dp"
+                app:strokeColor="#D32F2F"
+                app:strokeWidth="1dp"
+                app:iconTint="#D32F2F"
+                app:iconGravity="textStart"
+                app:iconPadding="4dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnSumar"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:contentDescription="Aumentar stock"
+                android:text="Aumentar"
+                android:textSize="13sp"
+                android:textColor="#4CAF50"
+                android:textStyle="bold"
+                android:backgroundTint="#C9FBCA"
+                app:cornerRadius="8dp"
+                app:strokeColor="#4CAF50"
+                app:strokeWidth="1dp"
+                app:iconTint="#4CAF50"
+                app:iconGravity="textStart"
+                app:iconPadding="4dp" />
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</com.google.android.material.card.MaterialCardView>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Tamaños de texto -->
+    <dimen name="text_size_extra_large">32sp</dimen>
+    <dimen name="text_size_large">18sp</dimen>
+    <dimen name="text_size_medium">16sp</dimen>
+    <dimen name="text_size_normal">14sp</dimen>
+    <dimen name="text_size_small">13sp</dimen>
+    <dimen name="text_size_extra_small">12sp</dimen>
+
+    <!-- Márgenes y padding -->
+    <dimen name="margin_extra_large">48dp</dimen>
+    <dimen name="margin_large">32dp</dimen>
+    <dimen name="margin_medium">24dp</dimen>
+    <dimen name="margin_normal">16dp</dimen>
+    <dimen name="margin_small">12dp</dimen>
+    <dimen name="margin_extra_small">8dp</dimen>
+    <dimen name="margin_tiny">4dp</dimen>
+
+    <!-- Tamaños de componentes -->
+    <dimen name="logo_size">100dp</dimen>
+    <dimen name="button_height">56dp</dimen>
+    <dimen name="input_height">52dp</dimen>
+    <dimen name="icon_size">24dp</dimen>
+
+    <!-- Radios de esquinas -->
+    <dimen name="corner_radius_large">20dp</dimen>
+    <dimen name="corner_radius_medium">12dp</dimen>
+    <dimen name="corner_radius_small">8dp</dimen>
+
+    <!-- Elevaciones -->
+    <dimen name="elevation_card">8dp</dimen>
+    <dimen name="elevation_button">4dp</dimen>
+    <dimen name="elevation_logo">4dp</dimen>
+</resources>
+

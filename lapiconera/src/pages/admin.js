@@ -1001,8 +1001,8 @@ export default function Admin() {
       <Header />
       <div className="min-h-screen bg-gray-50">
         <div className="bg-white border-b border-gray-200 sticky top-0 z-10">
-          <div className="max-w-7xl mx-auto px-4">
-            <nav className="flex justify-center gap-1 overflow-x-auto">
+          <div className="max-w-7xl mx-auto px-2 md:px-4">
+            <nav className="flex justify-start md:justify-center gap-1 overflow-x-auto pb-px scrollbar-hide">
               {[
                 { id: 'productos', label: 'Productos', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg> },
                 { id: 'categorias', label: 'Categorías', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" /></svg> },
@@ -1013,7 +1013,7 @@ export default function Admin() {
                 <button
                   key={seccion.id}
                   onClick={() => setSeccionActiva(seccion.id)}
-                  className={`flex items-center gap-2 px-4 md:px-6 py-3 md:py-4 font-medium border-b-2 transition whitespace-nowrap text-sm md:text-base ${
+                  className={`flex items-center gap-1.5 md:gap-2 px-3 md:px-6 py-3 md:py-4 font-medium border-b-2 transition whitespace-nowrap text-xs md:text-base flex-shrink-0 ${
                     seccionActiva === seccion.id
                       ? 'border-blue-500 text-blue-600'
                       : 'border-transparent text-gray-600 hover:text-gray-800'
@@ -1431,17 +1431,17 @@ export default function Admin() {
                   <span className="sm:hidden">Nuevo</span>
                 </button>
               </div>
-              <div className="flex gap-2 mb-6 border-b border-gray-200">
+              <div className="flex gap-2 mb-6 border-b border-gray-200 overflow-x-auto">
                 <button
                   onClick={() => setSubSeccionFiltros('alergenos')}
-                  className={`px-4 py-2 font-semibold transition border-b-2 ${
+                  className={`px-3 md:px-4 py-2 font-semibold transition border-b-2 whitespace-nowrap text-sm md:text-base ${
                     subSeccionFiltros === 'alergenos'
                       ? 'border-blue-500 text-blue-600'
                       : 'border-transparent text-gray-600 hover:text-gray-800'
                   }`}
                 >
                   <div className="flex items-center gap-2">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                     </svg>
                     <span>Alérgenos ({alergenos.length})</span>
@@ -1449,14 +1449,14 @@ export default function Admin() {
                 </button>
                 <button
                   onClick={() => setSubSeccionFiltros('tags')}
-                  className={`px-4 py-2 font-semibold transition border-b-2 ${
+                  className={`px-3 md:px-4 py-2 font-semibold transition border-b-2 whitespace-nowrap text-sm md:text-base ${
                     subSeccionFiltros === 'tags'
                       ? 'border-blue-500 text-blue-600'
                       : 'border-transparent text-gray-600 hover:text-gray-800'
                   }`}
                 >
                   <div className="flex items-center gap-2">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
                     </svg>
                     <span>Etiquetas ({tags.length})</span>
@@ -1906,14 +1906,14 @@ export default function Admin() {
           {seccionActiva === 'comunicacion' && (
             <div>
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-                <h2 className="text-2xl font-bold text-gray-800">Comunicación con Clientes</h2>
+                <h2 className="text-xl md:text-2xl font-bold text-gray-800">Comunicación con Clientes</h2>
               </div>
               <div className="bg-white rounded-lg shadow-md mb-6">
                 <div className="border-b border-gray-200">
-                  <nav className="flex">
+                  <nav className="flex overflow-x-auto">
                     <button
                       onClick={() => setSubSeccionComunicacion('sugerencias')}
-                      className={`px-6 py-3 font-medium border-b-2 transition ${
+                      className={`px-4 md:px-6 py-3 font-medium border-b-2 transition whitespace-nowrap text-sm md:text-base ${
                         subSeccionComunicacion === 'sugerencias'
                           ? 'border-blue-500 text-blue-600'
                           : 'border-transparent text-gray-600 hover:text-gray-800 hover:border-gray-300'
@@ -1923,7 +1923,7 @@ export default function Admin() {
                     </button>
                     <button
                       onClick={() => setSubSeccionComunicacion('contactos')}
-                      className={`px-6 py-3 font-medium border-b-2 transition ${
+                      className={`px-4 md:px-6 py-3 font-medium border-b-2 transition whitespace-nowrap text-sm md:text-base ${
                         subSeccionComunicacion === 'contactos'
                           ? 'border-blue-500 text-blue-600'
                           : 'border-transparent text-gray-600 hover:text-gray-800 hover:border-gray-300'
@@ -1965,13 +1965,13 @@ export default function Admin() {
                           <option value="todas">Todas</option>
                         </select>
                       </div>
-                      <div className="mt-4 flex items-center gap-4 text-sm text-gray-600">
-                        <span className="font-medium">Total: {sugerenciasFiltradas.length}</span>
-                        <span>Pendientes: {sugerencias.filter(s => s.status === 'pending' && !s.archived).length}</span>
-                        <span>Revisadas: {sugerencias.filter(s => s.status === 'reviewed' && !s.archived).length}</span>
-                        <span>Aprobadas: {sugerencias.filter(s => s.status === 'approved' && !s.archived).length}</span>
-                        <span>Archivadas: {sugerencias.filter(s => s.archived).length}</span>
-                        <span>Destacadas: {sugerencias.filter(s => s.liked && !s.archived).length}</span>
+                      <div className="mt-4 flex flex-wrap items-center gap-3 text-xs md:text-sm text-gray-600 overflow-x-auto">
+                        <span className="font-medium whitespace-nowrap">Total: {sugerenciasFiltradas.length}</span>
+                        <span className="whitespace-nowrap">Pendientes: {sugerencias.filter(s => s.status === 'pending' && !s.archived).length}</span>
+                        <span className="whitespace-nowrap">Revisadas: {sugerencias.filter(s => s.status === 'reviewed' && !s.archived).length}</span>
+                        <span className="whitespace-nowrap">Aprobadas: {sugerencias.filter(s => s.status === 'approved' && !s.archived).length}</span>
+                        <span className="whitespace-nowrap">Archivadas: {sugerencias.filter(s => s.archived).length}</span>
+                        <span className="whitespace-nowrap">Destacadas: {sugerencias.filter(s => s.liked && !s.archived).length}</span>
                       </div>
                     </div>
                     <div className="space-y-4">
@@ -1981,11 +1981,11 @@ export default function Admin() {
                         </div>
                       ) : (
                         sugerenciasFiltradas.map(sugerencia => (
-                          <div key={sugerencia.id} className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition">
-                            <div className="flex items-start justify-between mb-4">
-                              <div className="flex-1">
-                                <div className="flex items-center gap-2 mb-2">
-                                  <h3 className="font-bold text-gray-800 text-lg">{sugerencia.product_name}</h3>
+                          <div key={sugerencia.id} className="bg-white border border-gray-200 rounded-lg p-4 md:p-6 hover:shadow-md transition">
+                            <div className="flex flex-col md:flex-row items-start justify-between gap-4 mb-4">
+                              <div className="flex-1 min-w-0">
+                                <div className="flex flex-wrap items-center gap-2 mb-2">
+                                  <h3 className="font-bold text-gray-800 text-base md:text-lg break-words">{sugerencia.product_name}</h3>
                                   <span className={`px-2 py-1 text-xs rounded-full ${
                                     sugerencia.status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
                                     sugerencia.status === 'reviewed' ? 'bg-blue-100 text-blue-700' :
@@ -2016,48 +2016,48 @@ export default function Admin() {
                                   })}
                                 </p>
                               </div>
-                              <div className="flex items-center gap-2">
+                              <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
                                 <button
                                   onClick={() => toggleLikeSugerencia(sugerencia.id)}
-                                  className={`p-2 rounded-lg transition ${
+                                  className={`p-2 rounded-lg transition shrink-0 ${
                                     sugerencia.liked 
                                       ? 'bg-red-50 text-red-500 hover:bg-red-100' 
                                       : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
                                   }`}
                                   title={sugerencia.liked ? 'Quitar destacado' : 'Destacar'}
                                 >
-                                  <svg className="w-5 h-5" fill={sugerencia.liked ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
+                                  <svg className="w-4 h-4 md:w-5 md:h-5" fill={sugerencia.liked ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                                   </svg>
                                 </button>
                                 <button
                                   onClick={() => toggleArchivarSugerencia(sugerencia.id, sugerencia.archived)}
-                                  className={`p-2 rounded-lg transition ${
+                                  className={`p-2 rounded-lg transition shrink-0 ${
                                     sugerencia.archived 
                                       ? 'bg-yellow-50 text-yellow-600 hover:bg-yellow-100' 
                                       : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
                                   }`}
                                   title={sugerencia.archived ? 'Desarchivar' : 'Archivar'}
                                 >
-                                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
                                   </svg>
                                 </button>
                                 {!sugerencia.responded && (
                                   <button
                                     onClick={() => abrirModalRespuestaSugerencia(sugerencia)}
-                                    className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition flex items-center gap-2"
+                                    className="px-3 md:px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition flex items-center gap-1 md:gap-2 text-sm md:text-base"
                                   >
-                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                                     </svg>
-                                    Responder
+                                    <span className="hidden sm:inline">Responder</span>
                                   </button>
                                 )}
                                 <select
                                   value={sugerencia.status}
                                   onChange={(e) => cambiarEstadoSugerencia(sugerencia.id, e.target.value)}
-                                  className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
+                                  className="px-2 md:px-3 py-2 border border-gray-300 rounded-lg text-xs md:text-sm focus:ring-2 focus:ring-blue-500"
                                 >
                                   <option value="pending">Pendiente</option>
                                   <option value="reviewed">Revisada</option>
@@ -2066,10 +2066,10 @@ export default function Admin() {
                                 </select>
                                 <button
                                   onClick={() => eliminarSugerenciaConfirm(sugerencia.id, sugerencia.user_name)}
-                                  className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition"
+                                  className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition shrink-0"
                                   title="Eliminar"
                                 >
-                                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                   </svg>
                                 </button>
@@ -2128,12 +2128,12 @@ export default function Admin() {
                           <option value="leidos">Leídos</option>
                         </select>
                       </div>
-                      <div className="mt-4 flex items-center gap-4 text-sm text-gray-600">
-                        <span className="font-medium">Total: {contactosFiltrados.length}</span>
-                        <span>No leídos: {contactos.filter(c => !c.leido).length}</span>
-                        <span>Leídos: {contactos.filter(c => c.leido).length}</span>
-                        <span>Destacados: {contactos.filter(c => c.liked).length}</span>
-                        <span>Respondidos: {contactos.filter(c => c.responded).length}</span>
+                      <div className="mt-4 flex flex-wrap items-center gap-3 text-xs md:text-sm text-gray-600 overflow-x-auto">
+                        <span className="font-medium whitespace-nowrap">Total: {contactosFiltrados.length}</span>
+                        <span className="whitespace-nowrap">No leídos: {contactos.filter(c => !c.leido).length}</span>
+                        <span className="whitespace-nowrap">Leídos: {contactos.filter(c => c.leido).length}</span>
+                        <span className="whitespace-nowrap">Destacados: {contactos.filter(c => c.liked).length}</span>
+                        <span className="whitespace-nowrap">Respondidos: {contactos.filter(c => c.responded).length}</span>
                       </div>
                     </div>
                     <div className="space-y-4">
@@ -2145,17 +2145,17 @@ export default function Admin() {
                         contactosFiltrados.map(contacto => (
                           <div 
                             key={contacto.id} 
-                            className={`bg-white border-2 rounded-lg p-6 hover:shadow-md transition ${
+                            className={`bg-white border-2 rounded-lg p-4 md:p-6 hover:shadow-md transition ${
                               !contacto.leido ? 'border-blue-300 bg-blue-50' : 'border-gray-200'
                             }`}
                           >
-                            <div className="flex items-start justify-between mb-4">
-                              <div className="flex-1">
-                                <div className="flex items-center gap-2 mb-2">
+                            <div className="flex flex-col md:flex-row items-start justify-between gap-4 mb-4">
+                              <div className="flex-1 min-w-0">
+                                <div className="flex flex-wrap items-center gap-2 mb-2">
                                   {!contacto.leido && (
                                     <span className="w-3 h-3 bg-blue-500 rounded-full"></span>
                                   )}
-                                  <h3 className="font-bold text-gray-800 text-lg">{contacto.asunto}</h3>
+                                  <h3 className="font-bold text-gray-800 text-base md:text-lg break-words">{contacto.asunto}</h3>
                                   {!contacto.leido && (
                                     <span className="px-2 py-1 bg-blue-500 text-white text-xs rounded-full font-semibold">
                                       NUEVO
@@ -2175,55 +2175,55 @@ export default function Admin() {
                                   })}
                                 </p>
                               </div>
-                              <div className="flex items-center gap-2">
+                              <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
                                 <button
                                   onClick={() => toggleLikeContacto(contacto.id)}
-                                  className={`p-2 rounded-lg transition ${
+                                  className={`p-2 rounded-lg transition shrink-0 ${
                                     contacto.liked 
                                       ? 'bg-red-50 text-red-500 hover:bg-red-100' 
                                       : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
                                   }`}
                                   title={contacto.liked ? 'Quitar destacado' : 'Destacar'}
                                 >
-                                  <svg className="w-5 h-5" fill={contacto.liked ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
+                                  <svg className="w-4 h-4 md:w-5 md:h-5" fill={contacto.liked ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                                   </svg>
                                 </button>
                                 {!contacto.responded && (
                                   <button
                                     onClick={() => abrirModalRespuestaContacto(contacto)}
-                                    className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition flex items-center gap-2"
+                                    className="px-3 md:px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition flex items-center gap-1 md:gap-2 text-sm md:text-base"
                                   >
-                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                                     </svg>
-                                    Responder
+                                    <span className="hidden sm:inline">Responder</span>
                                   </button>
                                 )}
                                 <button
                                   onClick={() => toggleLeidoContacto(contacto.id, contacto.leido)}
-                                  className={`px-4 py-2 rounded-lg transition flex items-center gap-2 ${
+                                  className={`px-3 md:px-4 py-2 rounded-lg transition flex items-center gap-1 md:gap-2 text-sm md:text-base ${
                                     contacto.leido
                                       ? 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                                       : 'bg-blue-500 text-white hover:bg-blue-600'
                                   }`}
                                   title={contacto.leido ? 'Marcar como no leído' : 'Marcar como leído'}
                                 >
-                                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     {contacto.leido ? (
                                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 19v-8.93a2 2 0 01.89-1.664l7-4.666a2 2 0 012.22 0l7 4.666A2 2 0 0121 10.07V19M3 19a2 2 0 002 2h14a2 2 0 002-2M3 19l6.75-4.5M21 19l-6.75-4.5M3 10l6.75 4.5M21 10l-6.75 4.5m0 0l-1.14.76a2 2 0 01-2.22 0l-1.14-.76" />
                                     ) : (
                                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                                     )}
                                   </svg>
-                                  {contacto.leido ? 'Marcar no leído' : 'Marcar leído'}
+                                  <span className="hidden sm:inline">{contacto.leido ? 'Marcar no leído' : 'Marcar leído'}</span>
                                 </button>
                                 <button
                                   onClick={() => eliminarContactoConfirm(contacto.id, contacto.nombre)}
-                                  className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition"
+                                  className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition shrink-0"
                                   title="Eliminar"
                                 >
-                                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                   </svg>
                                 </button>

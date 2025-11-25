@@ -4,7 +4,7 @@ object Constantes {
     const val PREFS_NAME = "prefs"
     const val USER_ID = "userId"
 
-    private const val USE_PRODUCTION = true
+    private const val USE_PRODUCTION = false
 
     private const val DEV_BASE_URL = "http://10.0.2.2:3000/api/"
 

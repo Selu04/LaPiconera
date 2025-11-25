@@ -49,10 +49,55 @@ class ProductoRepository(
     }
 
     /**
+     * Busca un producto por código de barras
+     */
+    suspend fun buscarPorCodigoBarras(barcode: String): Result<Producto?> {
+        return try {
+            val response = api.getProductos(todos = true)
+
+            if (response.isSuccessful && response.body() != null) {
+                val productos = response.body()!!
+                val producto = productos.find { it.barcode == barcode }
+                Result.success(producto)
+            } else {
+                Result.failure(Exception("Error al buscar producto: ${response.code()}"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    /**
+     * Verifica si existe un producto con el mismo nombre
+     */
+    suspend fun verificarNombreDuplicado(nombre: String, idActual: String? = null): Result<Boolean> {
+        return try {
+            val response = api.getProductos(search = nombre, todos = true)
+
+            if (response.isSuccessful && response.body() != null) {
+                val productos = response.body()!!
+                val existe = productos.any {
+                    it.name.equals(nombre, ignoreCase = true) && it.id != idActual
+                }
+                Result.success(existe)
+            } else {
+                Result.failure(Exception("Error al verificar nombre: ${response.code()}"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    /**
      * Crea un nuevo producto
      */
     suspend fun crearProducto(producto: ProductoRequest): Result<Producto> {
         return try {
+            val verificacion = verificarNombreDuplicado(producto.name)
+            if (verificacion.isSuccess && verificacion.getOrNull() == true) {
+                return Result.failure(Exception("Ya existe un producto con ese nombre"))
+            }
+
             val response = api.crearProducto(producto)
 
             if (response.isSuccessful && response.body() != null) {

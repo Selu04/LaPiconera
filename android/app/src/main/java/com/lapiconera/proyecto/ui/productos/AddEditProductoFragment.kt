@@ -45,7 +45,9 @@ class AddEditProductoFragment : AuthenticatedFragment() {
     private val args: AddEditProductoFragmentArgs by navArgs()
     private var producto: Producto? = null
     private var imagenBase64: String? = null
+    private var imagenBitmap: Bitmap? = null
     private val repository = ProductoRepository()
+    private val imageRepository = com.lapiconera.proyecto.data.repository.ImageRepository()
     private val viewModel: ProductosViewModel by viewModels()
 
     private var categoriasList: List<Categoria> = emptyList()
@@ -68,6 +70,16 @@ class AddEditProductoFragment : AuthenticatedFragment() {
             startBarcodeScanner()
         } else {
             Toast.makeText(requireContext(), "Se necesita permiso de cámara", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private val cameraPhotoPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            abrirCamara()
+        } else {
+            Toast.makeText(requireContext(), "Se necesita permiso de cámara para tomar fotos", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -271,12 +283,26 @@ class AddEditProductoFragment : AuthenticatedFragment() {
                             startActivityForResult(intent, REQUEST_CODE_GALLERY)
                         }
                         1 -> {
-                            val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-                            startActivityForResult(intent, REQUEST_CODE_CAMERA)
+                            when {
+                                ContextCompat.checkSelfPermission(
+                                    requireContext(),
+                                    Manifest.permission.CAMERA
+                                ) == PackageManager.PERMISSION_GRANTED -> {
+                                    abrirCamara()
+                                }
+                                else -> {
+                                    cameraPhotoPermissionLauncher.launch(Manifest.permission.CAMERA)
+                                }
+                            }
                         }
                     }
                 }.show()
         }
+    }
+
+    private fun abrirCamara() {
+        val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+        startActivityForResult(intent, REQUEST_CODE_CAMERA)
     }
 
     private fun setupBarcodeScannerButton() {
@@ -398,7 +424,7 @@ class AddEditProductoFragment : AuthenticatedFragment() {
     }
 
     private fun guardarProducto() {
-        val nombre = binding.etNombre.text.toString()
+        val nombre = binding.etNombre.text.toString().trim()
         val precioStr = binding.etPrecio.text.toString()
         val stock = binding.etStock.text.toString().toIntOrNull() ?: 0
         val stockMinimo = binding.etStockMinimo.text.toString().toIntOrNull() ?: 5
@@ -416,39 +442,64 @@ class AddEditProductoFragment : AuthenticatedFragment() {
             return
         }
 
-        if (producto == null && imagenBase64.isNullOrBlank()) {
+        if (producto == null && imagenBitmap == null) {
             Toast.makeText(requireContext(), "Selecciona una imagen", Toast.LENGTH_SHORT).show()
             return
         }
 
-        val imagenUrl = if (imagenBase64 != null) {
-            "https://oeakibkrouxtehvwjmlz.supabase.co/storage/v1/object/public/productsimg/${nombre.lowercase().replace(" ","_")}.png"
-        } else {
-            producto?.image
-        }
-
-        val selectedPosition = binding.spinnerCategoria.selectedItemPosition
-        val categoriaId = if (selectedPosition >= 0 && selectedPosition < categoriasList.size) {
-            categoriasList[selectedPosition].id
-        } else null
-
-        val nuevoProductoRequest = ProductoRequest(
-            name = nombre,
-            description = descripcion.ifBlank { null },
-            price = precio,
-            category = categoriaId,
-            image = imagenUrl,
-            stockQuantity = stock,
-            minStock = stockMinimo,
-            allergens = selectedAlergenos.toList(),
-            tags = selectedTags.toList(),
-            isAvailable = true,
-            barcode = barcode
-        )
-
         lifecycleScope.launch {
             try {
                 binding.btnGuardar.isEnabled = false
+                Toast.makeText(requireContext(), "Guardando producto...", Toast.LENGTH_SHORT).show()
+
+                val verificacion = repository.verificarNombreDuplicado(nombre, producto?.id)
+                if (verificacion.isSuccess && verificacion.getOrNull() == true) {
+                    Toast.makeText(
+                        requireContext(),
+                        "Ya existe un producto con ese nombre",
+                        Toast.LENGTH_LONG
+                    ).show()
+                    binding.btnGuardar.isEnabled = true
+                    return@launch
+                }
+
+                var imagenUrl = producto?.image
+
+                if (imagenBitmap != null) {
+                    Toast.makeText(requireContext(), "Subiendo imagen...", Toast.LENGTH_SHORT).show()
+                    val resultImagen = imageRepository.subirImagenProducto(imagenBitmap!!, nombre)
+
+                    if (resultImagen.isSuccess) {
+                        imagenUrl = resultImagen.getOrNull()
+                    } else {
+                        Toast.makeText(
+                            requireContext(),
+                            "Error al subir imagen: ${resultImagen.exceptionOrNull()?.message}",
+                            Toast.LENGTH_LONG
+                        ).show()
+                        binding.btnGuardar.isEnabled = true
+                        return@launch
+                    }
+                }
+
+                val selectedPosition = binding.spinnerCategoria.selectedItemPosition
+                val categoriaId = if (selectedPosition >= 0 && selectedPosition < categoriasList.size) {
+                    categoriasList[selectedPosition].id
+                } else null
+
+                val nuevoProductoRequest = ProductoRequest(
+                    name = nombre,
+                    description = descripcion.ifBlank { null },
+                    price = precio,
+                    category = categoriaId,
+                    image = imagenUrl,
+                    stockQuantity = stock,
+                    minStock = stockMinimo,
+                    allergens = selectedAlergenos.toList(),
+                    tags = selectedTags.toList(),
+                    isAvailable = true,
+                    barcode = barcode
+                )
 
                 val result = if (producto == null) {
                     repository.crearProducto(nuevoProductoRequest)
@@ -457,7 +508,7 @@ class AddEditProductoFragment : AuthenticatedFragment() {
                 }
 
                 result.onSuccess {
-                    Toast.makeText(requireContext(), "Producto guardado", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "Producto guardado exitosamente", Toast.LENGTH_SHORT).show()
                     findNavController().popBackStack()
                 }.onFailure { error ->
                     Toast.makeText(
@@ -483,6 +534,7 @@ class AddEditProductoFragment : AuthenticatedFragment() {
                 data?.data?.let { uri ->
                     val bitmap = MediaStore.Images.Media.getBitmap(requireContext().contentResolver, uri)
                     binding.ivProducto.setImageBitmap(bitmap)
+                    imagenBitmap = bitmap
                     imagenBase64 = bitmapToBase64(bitmap)
                 }
             }
@@ -490,6 +542,7 @@ class AddEditProductoFragment : AuthenticatedFragment() {
                 val bitmap = data?.extras?.get("data") as? Bitmap
                 bitmap?.let {
                     binding.ivProducto.setImageBitmap(it)
+                    imagenBitmap = it
                     imagenBase64 = bitmapToBase64(it)
                 }
             }

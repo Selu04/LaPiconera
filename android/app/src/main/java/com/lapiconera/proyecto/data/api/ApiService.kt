@@ -19,6 +19,9 @@ interface ApiService {
     @POST("AuthAndroid")
     suspend fun login(@Body request: LoginRequest): Response<LoginResponse>
 
+    @POST("uploadImage")
+    suspend fun subirImagen(@Body request: ImageUploadRequest): Response<ImageUploadResponse>
+
     @GET("categorias")
     suspend fun getCategorias(): Response<List<Categoria>>
 
@@ -85,3 +88,15 @@ data class StockUpdateRequest(
 data class DeleteProductoRequest(
     val id: String
 )
+
+data class ImageUploadRequest(
+    val imagen: String,
+    val nombre: String
+)
+
+data class ImageUploadResponse(
+    val success: Boolean,
+    val url: String,
+    val fileName: String
+)
+

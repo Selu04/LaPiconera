@@ -22,7 +22,7 @@ object RetrofitClient {
 
     val api: ApiService by lazy {
         Retrofit.Builder()
-            .baseUrl(Constantes.BASE_URL)
+            .baseUrl("https://lapiconera.vercel.app/api/")
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()

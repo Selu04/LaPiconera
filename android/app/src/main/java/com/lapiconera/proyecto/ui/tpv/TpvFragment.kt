@@ -3,7 +3,6 @@ package com.lapiconera.proyecto.ui.tpv
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,8 +12,6 @@ import androidx.appcompat.app.AlertDialog
 import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -25,7 +22,6 @@ import com.lapiconera.proyecto.data.model.ItemTPV
 import com.lapiconera.proyecto.data.repository.ProductoRepository
 import com.lapiconera.proyecto.databinding.FragmentTpvBinding
 import com.lapiconera.proyecto.ui.base.AuthenticatedFragment
-import com.lapiconera.proyecto.ui.productos.ProductosViewModel
 import kotlinx.coroutines.launch
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -39,7 +35,6 @@ class TpvFragment : AuthenticatedFragment() {
     private val items = mutableListOf<ItemTPV>()
     private var esReducir = true
 
-    private val viewModel: ProductosViewModel by viewModels()
     private val repository = ProductoRepository()
 
     private lateinit var cameraExecutor: ExecutorService
@@ -191,10 +186,11 @@ class TpvFragment : AuthenticatedFragment() {
 
     private fun buscarYAgregarProducto(barcode: String) {
         lifecycleScope.launch {
-            val result = repository.getProductos(search = barcode)
-            result.onSuccess { productos ->
-                if (productos.isNotEmpty()) {
-                    val producto = productos.first()
+            Toast.makeText(requireContext(), "Buscando producto con código: $barcode", Toast.LENGTH_SHORT).show()
+
+            val result = repository.buscarPorCodigoBarras(barcode)
+            result.onSuccess { producto ->
+                if (producto != null) {
                     val item = ItemTPV(
                         productoId = producto.id ?: "",
                         nombre = producto.name,
@@ -207,10 +203,10 @@ class TpvFragment : AuthenticatedFragment() {
                     actualizarContador()
                     Toast.makeText(requireContext(), "Producto agregado: ${producto.name}", Toast.LENGTH_SHORT).show()
                 } else {
-                    Toast.makeText(requireContext(), "Producto no encontrado", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "Producto no encontrado con código: $barcode", Toast.LENGTH_LONG).show()
                 }
-            }.onFailure {
-                Toast.makeText(requireContext(), "Error al buscar producto", Toast.LENGTH_SHORT).show()
+            }.onFailure { error ->
+                Toast.makeText(requireContext(), "Error al buscar producto: ${error.message}", Toast.LENGTH_LONG).show()
             }
         }
     }

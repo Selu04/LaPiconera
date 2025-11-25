@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/router'
-import Header from './components/Header'
-import { useNotification } from './context/NotificationContext'
+import Header from '../components/Header'
+import { useNotification } from '../context/NotificationContext'
 export default function Sugerencias() {
   const router = useRouter()
   const { showSuccess, showError } = useNotification()
@@ -177,4 +177,4 @@ export default function Sugerencias() {
       </div>
     </>
   )
-}
+}

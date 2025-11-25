@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/router'
 import { loginUsuario, registrarUsuario } from './api/auth'
-import Header from './components/Header'
+import Header from '../components/Header'
 export default function Login() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -133,4 +133,4 @@ export default function Login() {
       </div>
     </>
   )
-}
+}

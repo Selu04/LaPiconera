@@ -74,6 +74,17 @@ async function actualizarSugerencia(req, res) {
         return res.status(500).json({ error: 'Error al obtener sugerencia: ' + fetchError.message })
       }
       updateData = { liked: !currentData?.liked }
+    } else if (action === 'toggle_archived') {
+      const { data: currentData, error: fetchError } = await supabase
+        .from('suggestions')
+        .select('archived')
+        .eq('id', id)
+        .single()
+      if (fetchError) {
+        console.error('Error al obtener sugerencia:', fetchError)
+        return res.status(500).json({ error: 'Error al obtener sugerencia: ' + fetchError.message })
+      }
+      updateData = { archived: !currentData?.archived, updated_at: new Date().toISOString() }
     } else if (action === 'respond') {
       if (!responseData || !responseData.subject || !responseData.message) {
         return res.status(400).json({ error: 'Subject y mensaje son obligatorios para responder' })
@@ -129,4 +140,4 @@ async function eliminarSugerencia(req, res) {
     console.error('Error al eliminar sugerencia:', error)
     return res.status(500).json({ error: error.message })
   }
-}
+}

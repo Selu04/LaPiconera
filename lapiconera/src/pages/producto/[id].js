@@ -18,10 +18,14 @@ export default function ProductoDetalle() {
   const [nuevaRespuesta, setNuevaRespuesta] = useState('')
   const [faqs, setFaqs] = useState([])
   const [editandoFAQIndex, setEditandoFAQIndex] = useState(null)
+  const [editandoAlergenos, setEditandoAlergenos] = useState(false)
+  const [alergenosDisponibles, setAlergenosDisponibles] = useState([])
+  const [alergenosSeleccionados, setAlergenosSeleccionados] = useState([])
 
   useEffect(() => {
     if (id) {
       cargarProducto()
+      cargarAlergenos()
     }
   }, [id])
 
@@ -37,11 +41,27 @@ export default function ProductoDetalle() {
 
       setProducto(data)
       setFaqs(data.faqs || [])
+      setAlergenosSeleccionados(data.allergens || [])
     } catch (error) {
       console.error('Error al cargar producto:', error)
       alert('Error al cargar el producto')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const cargarAlergenos = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('allergens')
+        .select('*')
+        .order('name', { ascending: true })
+
+      if (error) throw error
+
+      setAlergenosDisponibles(data)
+    } catch (error) {
+      console.error('Error al cargar alérgenos:', error)
     }
   }
 
@@ -129,6 +149,39 @@ export default function ProductoDetalle() {
     }
   }
 
+  const toggleAlergeno = (alergenoId) => {
+    setAlergenosSeleccionados(prev => {
+      if (prev.includes(alergenoId)) {
+        return prev.filter(id => id !== alergenoId)
+      } else {
+        return [...prev, alergenoId]
+      }
+    })
+  }
+
+  const guardarAlergenos = async () => {
+    try {
+      const { error } = await supabase
+        .from('products')
+        .update({ allergens: alergenosSeleccionados })
+        .eq('id', id)
+
+      if (error) throw error
+
+      setProducto({ ...producto, allergens: alergenosSeleccionados })
+      setEditandoAlergenos(false)
+      alert('Alérgenos actualizados correctamente')
+    } catch (error) {
+      console.error('Error:', error)
+      alert('Error al actualizar alérgenos')
+    }
+  }
+
+  const cancelarEdicionAlergenos = () => {
+    setAlergenosSeleccionados(producto.allergens || [])
+    setEditandoAlergenos(false)
+  }
+
   const esAdmin = usuario && (usuario.role === 'admin' || usuario.role === 'employee')
 
   if (loading) {
@@ -213,14 +266,66 @@ export default function ProductoDetalle() {
               </div>
 
               {/* Alérgenos */}
-              {tieneAlergenos && (
-                <div className="mb-6">
-                  <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+              <div className="mb-6">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="font-semibold text-gray-900 flex items-center gap-2">
                     <svg className="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                     </svg>
                     Alérgenos
                   </h3>
+                  {esAdmin && !editandoAlergenos && (
+                    <button
+                      onClick={() => setEditandoAlergenos(true)}
+                      className="px-3 py-1 bg-blue-500 text-white rounded-lg hover:bg-blue-600 text-sm flex items-center gap-1"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                      </svg>
+                      Editar
+                    </button>
+                  )}
+                </div>
+
+                {editandoAlergenos ? (
+                  <div className="p-4 bg-blue-50 rounded-lg border-2 border-blue-500">
+                    <p className="text-sm text-gray-600 mb-3">Selecciona los alérgenos del producto:</p>
+                    <div className="grid grid-cols-2 gap-2 mb-4">
+                      {alergenosDisponibles.map((alergeno) => (
+                        <label
+                          key={alergeno.id}
+                          className={`flex items-center gap-2 p-3 rounded-lg border-2 cursor-pointer transition ${
+                            alergenosSeleccionados.includes(alergeno.id)
+                              ? 'border-red-500 bg-red-50'
+                              : 'border-gray-200 bg-white hover:border-gray-300'
+                          }`}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={alergenosSeleccionados.includes(alergeno.id)}
+                            onChange={() => toggleAlergeno(alergeno.id)}
+                            className="w-4 h-4 text-red-600 rounded focus:ring-red-500"
+                          />
+                          <span className="text-sm font-medium text-gray-900">{alergeno.name}</span>
+                        </label>
+                      ))}
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={guardarAlergenos}
+                        className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm"
+                      >
+                        Guardar
+                      </button>
+                      <button
+                        onClick={cancelarEdicionAlergenos}
+                        className="px-4 py-2 bg-gray-400 text-white rounded-lg hover:bg-gray-500 text-sm"
+                      >
+                        Cancelar
+                      </button>
+                    </div>
+                  </div>
+                ) : tieneAlergenos ? (
                   <div className="flex flex-wrap gap-2">
                     {producto.allergens.map((alergeno, index) => (
                       <span
@@ -231,8 +336,10 @@ export default function ProductoDetalle() {
                       </span>
                     ))}
                   </div>
-                </div>
-              )}
+                ) : (
+                  <p className="text-gray-500 text-sm">Sin alérgenos</p>
+                )}
+              </div>
 
               {/* Tags */}
               {tieneTags && (

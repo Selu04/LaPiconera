@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
-import Header from './components/Header'
-import { useNotification } from './context/NotificationContext'
+import Header from '../components/Header'
+import { useNotification } from '../context/NotificationContext'
 import { obtenerPedidosUsuario, obtenerTodosPedidos, actualizarEstadoPedido, obtenerEstadisticasPedidos } from './api/pedidos'
 import { supabase } from './api/supabaseClient'
 export default function Pedidos() {
@@ -423,4 +423,4 @@ export default function Pedidos() {
       </div>
     </>
   )
-}
+}

@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
-import Header from './components/Header'
-import { useUser } from './context/UserContext'
-import { useNotification } from './context/NotificationContext'
+import Header from '../components/Header'
+import { useUser } from '../context/UserContext'
+import { useNotification } from '../context/NotificationContext'
 import { getTodosProductos, crearProducto, actualizarProducto, eliminarProducto } from './api/productos'
 import { getCategorias, crearCategoria, actualizarCategoria, eliminarCategoria } from './api/categorias'
 import { getTags, crearTag, actualizarTag, eliminarTag } from './api/tags'
@@ -81,6 +81,7 @@ export default function Admin() {
     price: '',
     category: '',
     image: '',
+    barcode: '',
     allergens: [],
     tags: [],
     stock_quantity: '',
@@ -130,6 +131,7 @@ export default function Admin() {
   const [busquedaEmpleado, setBusquedaEmpleado] = useState('')
   const [sugerencias, setSugerencias] = useState([])
   const [filtroSugerencias, setFiltroSugerencias] = useState('todas') 
+  const [filtroArchivadoSugerencias, setFiltroArchivadoSugerencias] = useState('no-archivadas')
   const [busquedaSugerencia, setBusquedaSugerencia] = useState('')
   const [contactos, setContactos] = useState([])
   const [filtroContactos, setFiltroContactos] = useState('todos') 
@@ -209,6 +211,7 @@ export default function Admin() {
         price: producto.price,
         category: producto.category || '',
         image: producto.image || '',
+        barcode: producto.barcode || '',
         allergens: producto.allergens || [],
         tags: producto.tags || [],
         stock_quantity: producto.stock_quantity || 0,
@@ -223,6 +226,7 @@ export default function Admin() {
         price: '',
         category: '',
         image: '',
+        barcode: '',
         allergens: [],
         tags: [],
         stock_quantity: '',
@@ -790,6 +794,17 @@ export default function Admin() {
       showError('Error al actualizar el estado')
     }
   }
+
+  const toggleArchivarSugerencia = async (id, archivarActual) => {
+    try {
+      await actualizarSugerencia(id, null, 'toggle_archived')
+      await cargarDatos()
+      showSuccess(archivarActual ? 'Sugerencia desarchivada' : 'Sugerencia archivada')
+    } catch (error) {
+      console.error('Error al archivar/desarchivar:', error)
+      showError('Error al actualizar el estado')
+    }
+  }
   const cambiarEstadoSugerencia = async (id, status) => {
     try {
       await actualizarSugerencia(id, status)
@@ -868,6 +883,11 @@ export default function Admin() {
   )
   if (filtroSugerencias !== 'todas') {
     sugerenciasFiltradas = sugerenciasFiltradas.filter(s => s.status === filtroSugerencias)
+  }
+  if (filtroArchivadoSugerencias === 'archivadas') {
+    sugerenciasFiltradas = sugerenciasFiltradas.filter(s => s.archived === true)
+  } else if (filtroArchivadoSugerencias === 'no-archivadas') {
+    sugerenciasFiltradas = sugerenciasFiltradas.filter(s => !s.archived)
   }
   const toggleLikeContacto = async (id) => {
     try {
@@ -1935,14 +1955,23 @@ export default function Admin() {
                           <option value="approved">Aprobadas</option>
                           <option value="rejected">Rechazadas</option>
                         </select>
+                        <select
+                          value={filtroArchivadoSugerencias}
+                          onChange={(e) => setFiltroArchivadoSugerencias(e.target.value)}
+                          className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        >
+                          <option value="no-archivadas">No archivadas</option>
+                          <option value="archivadas">Archivadas</option>
+                          <option value="todas">Todas</option>
+                        </select>
                       </div>
                       <div className="mt-4 flex items-center gap-4 text-sm text-gray-600">
                         <span className="font-medium">Total: {sugerenciasFiltradas.length}</span>
-                        <span>Pendientes: {sugerencias.filter(s => s.status === 'pending').length}</span>
-                        <span>Revisadas: {sugerencias.filter(s => s.status === 'reviewed').length}</span>
-                        <span>Aprobadas: {sugerencias.filter(s => s.status === 'approved').length}</span>
-                        <span>Destacadas: {sugerencias.filter(s => s.liked).length}</span>
-                        <span>Respondidas: {sugerencias.filter(s => s.responded).length}</span>
+                        <span>Pendientes: {sugerencias.filter(s => s.status === 'pending' && !s.archived).length}</span>
+                        <span>Revisadas: {sugerencias.filter(s => s.status === 'reviewed' && !s.archived).length}</span>
+                        <span>Aprobadas: {sugerencias.filter(s => s.status === 'approved' && !s.archived).length}</span>
+                        <span>Archivadas: {sugerencias.filter(s => s.archived).length}</span>
+                        <span>Destacadas: {sugerencias.filter(s => s.liked && !s.archived).length}</span>
                       </div>
                     </div>
                     <div className="space-y-4">
@@ -1999,6 +2028,19 @@ export default function Admin() {
                                 >
                                   <svg className="w-5 h-5" fill={sugerencia.liked ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                                  </svg>
+                                </button>
+                                <button
+                                  onClick={() => toggleArchivarSugerencia(sugerencia.id, sugerencia.archived)}
+                                  className={`p-2 rounded-lg transition ${
+                                    sugerencia.archived 
+                                      ? 'bg-yellow-50 text-yellow-600 hover:bg-yellow-100' 
+                                      : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                                  }`}
+                                  title={sugerencia.archived ? 'Desarchivar' : 'Archivar'}
+                                >
+                                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
                                   </svg>
                                 </button>
                                 {!sugerencia.responded && (
@@ -2275,18 +2317,28 @@ export default function Admin() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Categoría</label>
-                  <select
-                    value={formProducto.category}
-                    onChange={(e) => setFormProducto({...formProducto, category: e.target.value})}
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Código de Barras</label>
+                  <input
+                    type="text"
+                    value={formProducto.barcode}
+                    onChange={(e) => setFormProducto({...formProducto, barcode: e.target.value})}
+                    placeholder="EAN-13, EAN-8, UPC..."
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="">Sin categoría</option>
-                    {categorias.map(cat => (
-                      <option key={cat.id} value={cat.id}>{cat.name}</option>
-                    ))}
-                  </select>
+                  />
                 </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Categoría</label>
+                <select
+                  value={formProducto.category}
+                  onChange={(e) => setFormProducto({...formProducto, category: e.target.value})}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="">Sin categoría</option>
+                  {categorias.map(cat => (
+                    <option key={cat.id} value={cat.id}>{cat.name}</option>
+                  ))}
+                </select>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>

@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
-import Header from './components/Header'
-import Filtros from './components/filtros'
-import Categorias from './components/categorias'
-import ProductoCard from './components/ProductoCard'
+import Header from '../components/Header'
+import Filtros from '../components/filtros'
+import Categorias from '../components/categorias'
+import ProductoCard from '../components/ProductoCard'
 import { getCategorias } from './api/categorias'
 import { getAlergenos } from './api/alergenos'
 import { getTags } from './api/tags'
@@ -107,4 +107,4 @@ export default function Home() {
       </div>
     </>
   )
-}
+}

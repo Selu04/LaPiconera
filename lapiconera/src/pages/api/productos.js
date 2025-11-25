@@ -2,12 +2,56 @@ import { supabase } from './supabaseClient'
 export default async function handler(req, res) {
   if (req.method === 'GET') {
     return getProductosHandler(req, res)
+  } else if (req.method === 'POST') {
+    return crearProductoHandler(req, res)
   } else if (req.method === 'PUT') {
     return actualizarStockHandler(req, res)
+  } else if (req.method === 'DELETE') {
+    return eliminarProductoHandler(req, res)
   } else {
     return res.status(405).json({ error: 'Método no permitido' })
   }
 }
+
+async function crearProductoHandler(req, res) {
+  try {
+    const producto = req.body
+
+    const datosProducto = {
+      name: producto.name,
+      description: producto.description,
+      price: producto.price,
+      image: producto.image,
+      barcode: producto.barcode || null,
+      allergens: producto.allergens || [],
+      tags: producto.tags || [],
+      stock_quantity: producto.stock_quantity || 0,
+      min_stock: producto.min_stock || 0,
+      is_available: producto.is_available !== undefined ? producto.is_available : true
+    }
+
+    if (producto.category && producto.category.trim() !== '') {
+      datosProducto.category = producto.category
+    }
+
+    const { data, error } = await supabase
+      .from('products')
+      .insert([datosProducto])
+      .select()
+      .single()
+
+    if (error) {
+      console.error('Error crear producto:', error)
+      throw error
+    }
+
+    return res.status(201).json(data)
+  } catch (error) {
+    console.error('Error al crear producto:', error)
+    return res.status(500).json({ error: 'Error al crear producto' })
+  }
+}
+
 async function getProductosHandler(req, res) {
   try {
     const { categoria, alergenos, tags, search, minPrice, maxPrice, todos } = req.query
@@ -73,6 +117,32 @@ async function actualizarStockHandler(req, res) {
     return res.status(500).json({ error: 'Error al actualizar stock' })
   }
 }
+
+async function eliminarProductoHandler(req, res) {
+  try {
+    const { id } = req.body
+    
+    if (!id) {
+      return res.status(400).json({ error: 'ID del producto requerido' })
+    }
+
+    const { error } = await supabase
+      .from('products')
+      .delete()
+      .eq('id', id)
+
+    if (error) {
+      console.error('Error al eliminar producto:', error)
+      throw error
+    }
+
+    return res.status(200).json({ success: true, message: 'Producto eliminado correctamente' })
+  } catch (error) {
+    console.error('Error al eliminar producto:', error)
+    return res.status(500).json({ error: 'Error al eliminar producto' })
+  }
+}
+
 export const getProductos = async ({
   categoria,
   alergenos,
@@ -151,6 +221,7 @@ export const actualizarProducto = async (id, producto) => {
   if (producto.description !== undefined) datosProducto.description = producto.description
   if (producto.price !== undefined) datosProducto.price = producto.price
   if (producto.image !== undefined) datosProducto.image = producto.image
+  if (producto.barcode !== undefined) datosProducto.barcode = producto.barcode
   if (producto.allergens !== undefined) datosProducto.allergens = producto.allergens
   if (producto.tags !== undefined) datosProducto.tags = producto.tags
   if (producto.min_stock !== undefined) datosProducto.min_stock = producto.min_stock || 0
@@ -178,4 +249,4 @@ export const eliminarProducto = async (id) => {
     .eq('id', id)
   if (error) throw error
   return true
-}
+}

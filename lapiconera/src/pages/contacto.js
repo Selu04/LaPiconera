@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
-import Header from './components/Header'
-import { useNotification } from './context/NotificationContext'
+import Header from '../components/Header'
+import { useNotification } from '../context/NotificationContext'
 import { enviarContacto, enviarSugerencia } from './api/contacto'
 import { supabase } from './api/supabaseClient'
 import { getCategorias } from './api/categorias'
@@ -309,4 +309,4 @@ export default function Contacto() {
       </div>
     </>
   )
-}
+}

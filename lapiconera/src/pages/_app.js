@@ -1,6 +1,6 @@
-import { CartProvider } from './context/CartContext'
-import { UserProvider } from './context/UserContext'
-import { NotificationProvider } from './context/NotificationContext'
+import { CartProvider } from '../context/CartContext'
+import { UserProvider } from '../context/UserContext'
+import { NotificationProvider } from '../context/NotificationContext'
 import '../styles/globals.css'
 function MyApp({ Component, pageProps }) {
   return (
@@ -13,4 +13,4 @@ function MyApp({ Component, pageProps }) {
     </UserProvider>
   )
 }
-export default MyApp
+export default MyApp

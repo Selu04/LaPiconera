@@ -1,4 +1,25 @@
 import { supabase } from './supabaseClient'
+
+export default async function handler(req, res) {
+  if (req.method === 'GET') {
+    try {
+      const { data, error } = await supabase
+        .from('tags')
+        .select('*')
+        .order('name', { ascending: true })
+      
+      if (error) throw error
+      
+      return res.status(200).json(data)
+    } catch (error) {
+      console.error('Error al obtener tags:', error)
+      return res.status(500).json({ error: 'Error del servidor' })
+    }
+  }
+  
+  return res.status(405).json({ error: 'Método no permitido' })
+}
+
 export const getTags = async () => {
   const { data, error } = await supabase
     .from('tags')
@@ -32,4 +53,4 @@ export const eliminarTag = async (id) => {
     .eq('id', id)
   if (error) throw error
   return data
-}
+}

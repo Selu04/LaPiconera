@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
-import Header from './components/Header'
+import Header from '../components/Header'
 import { useRouter } from 'next/router'
-import { useNotification } from './context/NotificationContext'
+import { useNotification } from '../context/NotificationContext'
 import { supabase } from './api/supabaseClient'
 export default function Stock() {
   const router = useRouter()
@@ -886,4 +886,4 @@ function ProductoStockCard({ producto, actualizarStock, añadirAPedido, actualiz
       </div>
     </div>
   )
-}
+}

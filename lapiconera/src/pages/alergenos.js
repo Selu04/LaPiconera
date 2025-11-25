@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import Header from './components/Header'
+import Header from '../components/Header'
 import { getAlergenos } from './api/alergenos'
 export default function Alergenos() {
   const [alergenos, setAlergenos] = useState([])
@@ -241,4 +241,4 @@ export default function Alergenos() {
       </div>
     </>
   )
-}
+}

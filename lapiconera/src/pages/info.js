@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
-import Header from './components/Header'
-import { useNotification } from './context/NotificationContext'
+import Header from '../components/Header'
+import { useNotification } from '../context/NotificationContext'
 import { getConfiguracion, updateConfiguracion } from './api/configuracion'
 import { supabase } from './api/supabaseClient'
 export default function Informacion() {
@@ -340,4 +340,4 @@ export default function Informacion() {
       </div>
     </>
   )
-}
+}

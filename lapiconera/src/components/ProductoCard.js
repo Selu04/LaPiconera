@@ -39,11 +39,11 @@ export default function ProductoCard({ producto, allTags = [], allAlergenos = []
       onClick={handleCardClick}
       className="border rounded-lg shadow-sm hover:shadow-lg transition bg-white flex flex-col h-full cursor-pointer"
     >
-      <div className="w-full aspect-[4/3] overflow-hidden rounded-t-lg relative">
+      <div className="w-full aspect-[4/3] overflow-hidden rounded-t-lg relative bg-gray-50">
         <img
           src={producto.image}
           alt={producto.name}
-          className="w-full h-full object-cover"
+          className="w-full h-full object-contain"
         />
         {tieneAlergenos && (
           <div className="absolute top-2 right-2 bg-red-500 text-white text-xs px-2 py-1 rounded-full font-semibold flex items-center gap-1">
@@ -107,14 +107,21 @@ export default function ProductoCard({ producto, allTags = [], allAlergenos = []
           )}
         </div>
         <button
-          onClick={handleAddToCart}
+          onClick={ producto.stock_quantity > 0
+            ? handleAddToCart
+            : (e) => { e.stopPropagation() }
+          }
           disabled={loading}
-          className="bg-orange-600 text-white px-4 py-2 mt-3 rounded hover:bg-orange-700 hover:font-bold w-full transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          className={
+              producto.stock_quantity > 0
+                  ? "bg-orange-600 text-white px-4 py-2 mt-3 rounded hover:bg-orange-700 hover:font-bold w-full transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  : "bg-red-700 text-white px-4 py-2 mt-3 rounded w-full transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          }
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
           </svg>
-          Añadir al carrito
+          {producto.stock_quantity > 0 ? 'Añadir al carrito' : 'Producto agotado'}
         </button>
       </div>
     </div>

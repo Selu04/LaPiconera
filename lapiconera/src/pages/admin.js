@@ -103,7 +103,10 @@ export default function Admin() {
   const [alergenoEditando, setAlergenoEditando] = useState(null)
   const [formAlergeno, setFormAlergeno] = useState({
     name: '',
-    icon: '⚠️'
+    icon: '⚠️',
+    description: '',
+    alimentos_comunes: '',
+    tambien_conocido_como: ''
   })
   const [busquedaAlergeno, setBusquedaAlergeno] = useState('')
   const [modalAsignacionAlergenoAbierto, setModalAsignacionAlergenoAbierto] = useState(false)
@@ -387,13 +390,19 @@ export default function Admin() {
       setAlergenoEditando(alergeno)
       setFormAlergeno({
         name: alergeno.name,
-        icon: alergeno.icon
+        icon: alergeno.icon,
+        description: alergeno.description || '',
+        alimentos_comunes: alergeno.alimentos_comunes || '',
+        tambien_conocido_como: alergeno.tambien_conocido_como || ''
       })
     } else {
       setAlergenoEditando(null)
       setFormAlergeno({
         name: '',
-        icon: '⚠️'
+        icon: '⚠️',
+        description: '',
+        alimentos_comunes: '',
+        tambien_conocido_como: ''
       })
     }
     setModalAlergenoAbierto(true)
@@ -407,7 +416,10 @@ export default function Admin() {
     try {
       const datos = {
         name: formAlergeno.name,
-        icon: formAlergeno.icon
+        icon: formAlergeno.icon,
+        description: formAlergeno.description || null,
+        alimentos_comunes: formAlergeno.alimentos_comunes || null,
+        tambien_conocido_como: formAlergeno.tambien_conocido_como || null
       }
       if (alergenoEditando) {
         await actualizarAlergeno(alergenoEditando.id, datos)
@@ -1027,56 +1039,6 @@ export default function Admin() {
           </div>
         </div>
         <div className="max-w-7xl mx-auto px-4 py-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <div className="bg-white rounded-lg shadow p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600">Total Productos</p>
-                  <p className="text-3xl font-bold text-blue-600">{stats.totalProductos}</p>
-                  <p className="text-xs text-gray-500 mt-1">+ {productos.length} productos</p>
-                </div>
-                <svg className="w-12 h-12 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                </svg>
-              </div>
-            </div>
-            <div className="bg-white rounded-lg shadow p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600">Stock Bajo</p>
-                  <p className="text-3xl font-bold text-orange-600">{stats.stockBajo}</p>
-                  <p className="text-xs text-gray-500 mt-1">Necesitan atención</p>
-                </div>
-                <svg className="w-12 h-12 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                </svg>
-              </div>
-            </div>
-            <div className="bg-white rounded-lg shadow p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600">Categorías</p>
-                  <p className="text-3xl font-bold text-green-600">{stats.totalCategorias}</p>
-                  <p className="text-xs text-gray-500 mt-1">Organizadas en catálogo</p>
-                </div>
-                <svg className="w-12 h-12 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-                </svg>
-              </div>
-            </div>
-            <div className="bg-white rounded-lg shadow p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600">Alérgenos</p>
-                  <p className="text-3xl font-bold text-purple-600">{stats.totalAlergenos}</p>
-                  <p className="text-xs text-gray-500 mt-1">+ {alergenos.length} registrados</p>
-                </div>
-                <svg className="w-12 h-12 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                </svg>
-              </div>
-            </div>
-          </div>
           {seccionActiva === 'productos' && (
             <div className="bg-white rounded-lg shadow-md p-4 md:p-6">
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
@@ -1095,7 +1057,7 @@ export default function Admin() {
                   <span className="sm:hidden">Nuevo</span>
                 </button>
               </div>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
                 <div className="bg-blue-50 rounded-lg p-4 text-center">
                   <svg className="w-8 h-8 text-blue-500 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
@@ -1107,22 +1069,29 @@ export default function Admin() {
                   <svg className="w-8 h-8 text-green-500 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
-                  <p className="text-2xl font-bold text-green-600">{productos.filter(p => p.stock > 0).length}</p>
+                  <p className="text-2xl font-bold text-green-600">{productos.filter(p => p.stock_quantity > 0).length}</p>
                   <p className="text-xs text-gray-600">En Stock</p>
                 </div>
                 <div className="bg-red-50 rounded-lg p-4 text-center">
                   <svg className="w-8 h-8 text-red-500 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   </svg>
-                  <p className="text-2xl font-bold text-red-600">{productos.filter(p => p.stock === 0).length}</p>
+                  <p className="text-2xl font-bold text-red-600">{productos.filter(p => p.stock_quantity === 0).length}</p>
                   <p className="text-xs text-gray-600">Agotados</p>
+                </div>
+                <div className="bg-yellow-50 rounded-lg p-4 text-center">
+                  <svg className="w-8 h-8 text-yellow-700 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />                  </svg>
+                  <p className="text-2xl font-bold text-orange-600">{productos.filter(p => p.stock_quantity < p.min_stock).length}</p>
+                  <p className="text-xs text-gray-600">Stock Bajo</p>
                 </div>
                 <div className="bg-orange-50 rounded-lg p-4 text-center">
                   <svg className="w-8 h-8 text-orange-500 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                   </svg>
-                  <p className="text-2xl font-bold text-orange-600">{stats.stockBajo}</p>
-                  <p className="text-xs text-gray-600">Con Alérgenos</p>
+                  <p className="text-2xl font-bold text-orange-600">{productos.filter(p => p.allergens.length > 0).length}</p>
+                  <p className="text-xs text-gray-600">Con Alérjenos</p>
                 </div>
               </div>
               <div className="bg-gray-50 rounded-lg p-3 md:p-4 mb-6">
@@ -2638,6 +2607,51 @@ export default function Admin() {
                   </div>
                 </div>
               </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
+                <textarea
+                  value={formAlergeno.description}
+                  onChange={(e) => setFormAlergeno({...formAlergeno, description: e.target.value})}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Descripción del alérgeno"
+                  rows={3}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Alimentos comunes
+                  <span className="text-xs text-gray-500 ml-2">(separar por comas)</span>
+                </label>
+                <textarea
+                  value={formAlergeno.alimentos_comunes}
+                  onChange={(e) => setFormAlergeno({...formAlergeno, alimentos_comunes: e.target.value})}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Ej: Pan, Pasta, Galletas"
+                  rows={2}
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Lista de alimentos que contienen este alérgeno
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  También conocido como
+                  <span className="text-xs text-gray-500 ml-2">(separar por comas)</span>
+                </label>
+                <textarea
+                  value={formAlergeno.tambien_conocido_como}
+                  onChange={(e) => setFormAlergeno({...formAlergeno, tambien_conocido_como: e.target.value})}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Ej: Trigo, Wheat, Gluten de trigo"
+                  rows={2}
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Nombres alternativos del alérgeno
+                </p>
+              </div>
+
               {alergenoEditando && (
                 <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
                   <div className="flex items-start gap-2">

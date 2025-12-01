@@ -239,11 +239,11 @@ export default function ProductoDetalle() {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
             {/* Imagen del producto */}
-            <div className="bg-white rounded-lg shadow-md overflow-hidden">
+            <div className="bg-white rounded-lg shadow-md overflow-hidden bg-gray-50">
               <img
                 src={producto.image}
                 alt={producto.name}
-                className="w-full h-[500px] object-cover"
+                className="w-full h-[500px] object-contain"
               />
             </div>
 

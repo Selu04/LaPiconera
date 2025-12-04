@@ -52,7 +52,6 @@ Equipo de La Piconera`
       EMAILJS_PUBLIC_KEY,
       EMAILJS_PRIVATE_KEY
     )
-    console.log('Email de confirmación enviado exitosamente')
     return { success: true, response }
   } catch (error) {
     console.error('Error al enviar email de confirmación:', error)
@@ -86,7 +85,6 @@ Equipo de La Piconera`
       EMAILJS_PUBLIC_KEY,
       EMAILJS_PRIVATE_KEY
     )
-    console.log('Email enviado exitosamente')
     return { success: true, response }
   } catch (error) {
     console.error('Error al enviar email:', error)
@@ -112,10 +110,9 @@ export async function sendEmail({ to, template, subject, variables }) {
       EMAILJS_PUBLIC_KEY,
       EMAILJS_PRIVATE_KEY
     )
-    console.log('Email enviado exitosamente')
     return { success: true, response }
   } catch (error) {
     console.error('Error al enviar email:', error)
     throw new Error(`Error al enviar email: ${error.message}`)
   }
-}
+}

@@ -47,10 +47,13 @@ class DetallePedidoAdapter(
             .into(holder.ivProducto)
 
         holder.btnMenos.setOnClickListener {
-            if (items[position].cantidad > 0) {
+            if (items[position].cantidad > 1) {
                 items[position].cantidad -= 1
                 holder.tvCantidad.text = items[position].cantidad.toString()
                 onCantidadChanged()
+            } else if (items[position].cantidad == 1) {
+                // Cuando llega a 0, eliminar el item automáticamente
+                onEliminarItem(item)
             }
         }
 

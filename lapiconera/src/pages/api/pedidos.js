@@ -74,7 +74,6 @@ export async function crearPedido(usuario, items) {
       try {
         const { enviarConfirmacionPedido } = await import('./emailService')
         await enviarConfirmacionPedido(pedidoCompleto)
-        console.log('Email de confirmación enviado correctamente')
       } catch (emailError) {
         console.error('Error al enviar email de confirmación:', emailError)
       }
@@ -174,7 +173,6 @@ export async function actualizarEstadoPedido(orderId, nuevoEstado) {
       try {
         const { enviarNotificacionPedidoListo } = await import('./emailService')
         await enviarNotificacionPedidoListo(data)
-        console.log('Notificación por email enviada correctamente')
       } catch (emailError) {
         console.error('Error al enviar email de notificación:', emailError)
       }
@@ -203,4 +201,4 @@ export async function obtenerEstadisticasPedidos() {
     console.error('Error al obtener estadísticas:', error)
     throw error
   }
-}
+}

@@ -8,6 +8,7 @@ import { getCategorias, crearCategoria, actualizarCategoria, eliminarCategoria }
 import { getTags, crearTag, actualizarTag, eliminarTag } from './api/tags'
 import { getAlergenos, crearAlergeno, actualizarAlergeno, eliminarAlergeno } from './api/alergenos'
 import { getEmpleados, crearEmpleado, actualizarRol, eliminarEmpleado } from './api/empleados'
+import { getUsuarios, actualizarBanUsuario } from './api/usuarios'
 async function getSugerencias() {
   const res = await fetch('/api/sugerencias')
   if (!res.ok) throw new Error('Error al obtener sugerencias')
@@ -147,7 +148,10 @@ export default function Admin() {
     subject: '',
     message: ''
   })
-  const [subSeccionComunicacion, setSubSeccionComunicacion] = useState('sugerencias') 
+  const [subSeccionComunicacion, setSubSeccionComunicacion] = useState('sugerencias')
+  const [usuarios, setUsuarios] = useState([])
+  const [busquedaUsuario, setBusquedaUsuario] = useState('')
+  const [filtroBanUsuario, setFiltroBanUsuario] = useState('todos') 
   const [subSeccionFiltros, setSubSeccionFiltros] = useState('alergenos') 
   useEffect(() => {
     if (!usuario) {
@@ -163,19 +167,16 @@ export default function Admin() {
   const cargarDatos = async () => {
     setLoading(true)
     try {
-      const [prodData, catData, tagData, alergData, empData, sugData, contData] = await Promise.all([
+      const [prodData, catData, tagData, alergData, empData, sugData, contData, usersData] = await Promise.all([
         getTodosProductos(),
         getCategorias(),
         getTags(),
         getAlergenos(),
         getEmpleados(),
         getSugerencias(),
-        getContactos()
+        getContactos(),
+        getUsuarios()
       ])
-      console.log('Productos cargados:', prodData)
-      console.log('Primer producto:', prodData[0])
-      console.log('Alérgenos cargados:', alergData)
-      console.log('Tags cargados:', tagData)
       setProductos(prodData)
       setCategorias(catData)
       setTags(tagData)
@@ -183,6 +184,7 @@ export default function Admin() {
       setEmpleados(empData)
       setSugerencias(sugData)
       setContactos(contData)
+      setUsuarios(usersData)
     } catch (error) {
       console.error('Error al cargar datos:', error)
     } finally {
@@ -357,7 +359,9 @@ export default function Admin() {
   const eliminarCategoriaConfirm = async (id) => {
     const productosAsociados = productos.filter(p => p.category === id)
     if (productosAsociados.length > 0) {
-      showError(`No se puede eliminar esta categoría porque tiene ${productosAsociados.length} producto(s) asociado(s)`)
+      const mensaje = `No se puede eliminar esta categoría porque tiene ${productosAsociados.length} producto(s) asociado(s)`
+      showError(mensaje)
+      console.error(mensaje)
       return
     }
     const confirmed = await showConfirm({
@@ -442,7 +446,9 @@ export default function Admin() {
       p.allergens && (p.allergens.includes(id) || p.allergens.includes(alergenoObj.name))
     )
     if (productosAsociados.length > 0) {
-      showError(`No se puede eliminar este alérgeno porque está asociado a ${productosAsociados.length} producto(s)`)
+      const mensaje = `No se puede eliminar este alérgeno porque está asociado a ${productosAsociados.length} producto(s)`
+      showError(mensaje)
+      console.error(mensaje)
       return
     }
     const confirmed = await showConfirm({
@@ -479,7 +485,6 @@ export default function Admin() {
         )
       )
     }).length
-    console.log(`Productos con alérgeno "${alergenoName}":`, count)
     return count
   }
   const abrirModalTag = (tag = null) => {
@@ -533,7 +538,9 @@ export default function Admin() {
       p.tags && (p.tags.includes(id) || p.tags.includes(tagObj.name))
     )
     if (productosAsociados.length > 0) {
-      showError(`No se puede eliminar esta etiqueta porque está asociada a ${productosAsociados.length} producto(s)`)
+      const mensaje = `No se puede eliminar esta etiqueta porque está asociada a ${productosAsociados.length} producto(s)`
+      showError(mensaje)
+      console.error(mensaje)
       return
     }
     const confirmed = await showConfirm({
@@ -614,6 +621,49 @@ export default function Admin() {
       showError('Error al actualizar la categoría')
     }
   }
+
+  const quitarTodosProductosCategoria = async (categoriaId) => {
+    const productosAsociados = productos.filter(p => p.category === categoriaId)
+    
+    if (productosAsociados.length === 0) {
+      showWarning('No hay productos asociados a esta categoría')
+      return
+    }
+
+    const confirmed = await showConfirm({
+      title: 'Quitar todos los productos',
+      message: `¿Estás seguro de que deseas quitar la categoría de ${productosAsociados.length} producto(s)? Los productos no se eliminarán, solo se quitará la categoría.`,
+      confirmText: 'Quitar categoría',
+      cancelText: 'Cancelar',
+      type: 'warning'
+    })
+
+    if (!confirmed) return
+
+    try {
+      const promesas = productosAsociados.map(producto => 
+        fetch('/api/productos', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            id: producto.id,
+            category: null
+          })
+        }).then(r => r.json())
+      )
+
+      await Promise.all(promesas)
+
+      setProductos(productos.map(p => 
+        p.category === categoriaId ? { ...p, category: null } : p
+      ))
+
+      showSuccess(`Categoría quitada de ${productosAsociados.length} producto(s)`)
+    } catch (error) {
+      console.error('Error al quitar categoría de productos:', error)
+      showError('Error al quitar la categoría de los productos')
+    }
+  }
   const toggleAlergenoEnProducto = async (productoId, alergenoId) => {
     try {
       const producto = productos.find(p => p.id === productoId)
@@ -690,6 +740,144 @@ export default function Admin() {
     } catch (error) {
       console.error('Error al actualizar tags:', error)
       showError('Error al actualizar las tags')
+    }
+  }
+
+  const quitarTodosProductosAlergeno = async (alergenoId) => {
+    const alergenoObj = alergenos.find(a => a.id === alergenoId)
+    const productosAsociados = productos.filter(p => 
+      p.allergens && p.allergens.some(a => 
+        a === alergenoId || 
+        a === alergenoObj?.id || 
+        a === alergenoObj?.name
+      )
+    )
+    
+    if (productosAsociados.length === 0) {
+      showWarning('No hay productos asociados a este alérgeno')
+      return
+    }
+
+    const confirmed = await showConfirm({
+      title: 'Quitar alérgeno de todos los productos',
+      message: `¿Estás seguro de que deseas quitar el alérgeno "${alergenoObj?.name}" de ${productosAsociados.length} producto(s)?`,
+      confirmText: 'Quitar alérgeno',
+      cancelText: 'Cancelar',
+      type: 'warning'
+    })
+
+    if (!confirmed) return
+
+    try {
+      const promesas = productosAsociados.map(producto => {
+        const nuevosAlergenos = (producto.allergens || []).filter(a => 
+          a !== alergenoId && 
+          a !== alergenoObj?.id && 
+          a !== alergenoObj?.name
+        )
+        return fetch('/api/productos', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            id: producto.id,
+            allergens: nuevosAlergenos
+          })
+        }).then(r => r.json())
+      })
+
+      await Promise.all(promesas)
+
+      setProductos(productos.map(p => {
+        if (p.allergens && p.allergens.some(a => 
+          a === alergenoId || 
+          a === alergenoObj?.id || 
+          a === alergenoObj?.name
+        )) {
+          return {
+            ...p,
+            allergens: (p.allergens || []).filter(a => 
+              a !== alergenoId && 
+              a !== alergenoObj?.id && 
+              a !== alergenoObj?.name
+            )
+          }
+        }
+        return p
+      }))
+
+      showSuccess(`Alérgeno quitado de ${productosAsociados.length} producto(s)`)
+    } catch (error) {
+      console.error('Error al quitar alérgeno de productos:', error)
+      showError('Error al quitar el alérgeno de los productos')
+    }
+  }
+
+  const quitarTodosProductosTag = async (tagId) => {
+    const tagObj = tags.find(t => t.id === tagId)
+    const productosAsociados = productos.filter(p => 
+      p.tags && p.tags.some(t => 
+        t === tagId || 
+        t === tagObj?.id || 
+        t === tagObj?.name
+      )
+    )
+    
+    if (productosAsociados.length === 0) {
+      showWarning('No hay productos asociados a esta etiqueta')
+      return
+    }
+
+    const confirmed = await showConfirm({
+      title: 'Quitar etiqueta de todos los productos',
+      message: `¿Estás seguro de que deseas quitar la etiqueta "${tagObj?.name}" de ${productosAsociados.length} producto(s)?`,
+      confirmText: 'Quitar etiqueta',
+      cancelText: 'Cancelar',
+      type: 'warning'
+    })
+
+    if (!confirmed) return
+
+    try {
+      const promesas = productosAsociados.map(producto => {
+        const nuevosTags = (producto.tags || []).filter(t => 
+          t !== tagId && 
+          t !== tagObj?.id && 
+          t !== tagObj?.name
+        )
+        return fetch('/api/productos', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            id: producto.id,
+            tags: nuevosTags
+          })
+        }).then(r => r.json())
+      })
+
+      await Promise.all(promesas)
+
+      setProductos(productos.map(p => {
+        if (p.tags && p.tags.some(t => 
+          t === tagId || 
+          t === tagObj?.id || 
+          t === tagObj?.name
+        )) {
+          return {
+            ...p,
+            tags: (p.tags || []).filter(t => 
+              t !== tagId && 
+              t !== tagObj?.id && 
+              t !== tagObj?.name
+            )
+          }
+        }
+        return p
+      }))
+
+      showSuccess(`Etiqueta quitada de ${productosAsociados.length} producto(s)`)
+    } catch (error) {
+      console.error('Error al quitar etiqueta de productos:', error)
+      showError('Error al quitar la etiqueta de los productos')
     }
   }
   const abrirModalEmpleado = () => {
@@ -790,12 +978,29 @@ export default function Admin() {
       }
     }
   }
+  const cambiarNivelBan = async (userId, nuevoNivel) => {
+    try {
+      await actualizarBanUsuario(userId, nuevoNivel)
+      await cargarDatos()
+      const niveles = { 0: 'sin restricciones', 1: 'sin pedidos', 2: 'sin pedidos ni contacto' }
+      showSuccess(`Nivel de ban actualizado a: ${niveles[nuevoNivel]}`)
+    } catch (error) {
+      console.error('Error al cambiar nivel de ban:', error)
+      showError(error.message || 'Error al actualizar el nivel de ban')
+    }
+  }
   const empleadosFiltrados = empleados.filter(e => 
     e.name.toLowerCase().includes(busquedaEmpleado.toLowerCase()) ||
     e.email.toLowerCase().includes(busquedaEmpleado.toLowerCase())
   )
   const empleadosActivos = empleadosFiltrados.filter(e => e.is_active !== false)
   const empleadosInactivos = empleadosFiltrados.filter(e => e.is_active === false)
+  const usuariosFiltrados = usuarios.filter(user => {
+    const matchBusqueda = user.email.toLowerCase().includes(busquedaUsuario.toLowerCase()) ||
+      (user.name && user.name.toLowerCase().includes(busquedaUsuario.toLowerCase()))
+    const matchBan = filtroBanUsuario === 'todos' || user.ban === parseInt(filtroBanUsuario)
+    return matchBusqueda && matchBan
+  })
   const toggleLikeSugerencia = async (id) => {
     try {
       await actualizarSugerencia(id, null, 'toggle_like')
@@ -1020,6 +1225,7 @@ export default function Admin() {
                 { id: 'categorias', label: 'Categorías', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" /></svg> },
                 { id: 'filtros', label: 'Filtros', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" /></svg> },
                 { id: 'empleados', label: 'Empleados', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg> },
+                { id: 'usuarios', label: 'Usuarios', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg> },
                 { id: 'comunicacion', label: 'Comunicación', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg> }
               ].map(seccion => (
                 <button
@@ -1866,6 +2072,182 @@ export default function Admin() {
                           </div>
                         ))}
                       </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+          {seccionActiva === 'usuarios' && (
+            <div>
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+                <div>
+                  <h2 className="text-xl md:text-2xl font-bold text-gray-800">Gestión de Usuarios</h2>
+                  <p className="text-gray-600 text-sm mt-1">Administra los niveles de ban de los usuarios</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div className="bg-white rounded-lg shadow-md p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-gray-600">Total Usuarios</p>
+                      <p className="text-2xl font-bold text-gray-800">{usuarios.length}</p>
+                    </div>
+                    <div className="bg-blue-100 p-3 rounded-full">
+                      <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-white rounded-lg shadow-md p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-gray-600">Sin Restricciones</p>
+                      <p className="text-2xl font-bold text-green-600">{usuarios.filter(u => u.ban === 0 || !u.ban).length}</p>
+                    </div>
+                    <div className="bg-green-100 p-3 rounded-full">
+                      <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-white rounded-lg shadow-md p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-gray-600">Con Restricciones</p>
+                      <p className="text-2xl font-bold text-red-600">{usuarios.filter(u => u.ban === 1 || u.ban === 2).length}</p>
+                    </div>
+                    <div className="bg-red-100 p-3 rounded-full">
+                      <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="bg-white rounded-lg shadow-md p-6">
+                <div className="flex flex-col md:flex-row gap-4 mb-6">
+                  <div className="flex-1">
+                    <div className="relative">
+                      <svg className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                      </svg>
+                      <input
+                        type="text"
+                        placeholder="Buscar por nombre o email..."
+                        value={busquedaUsuario}
+                        onChange={(e) => setBusquedaUsuario(e.target.value)}
+                        className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
+                    </div>
+                  </div>
+                  <div className="w-full md:w-64">
+                    <select
+                      value={filtroBanUsuario}
+                      onChange={(e) => setFiltroBanUsuario(e.target.value)}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                      <option value="todos">Todos los niveles</option>
+                      <option value="0">Sin restricciones (0)</option>
+                      <option value="1">Sin pedidos (1)</option>
+                      <option value="2">Sin pedidos ni contacto (2)</option>
+                    </select>
+                  </div>
+                </div>
+                <div className="space-y-3">
+                  <h3 className="font-semibold text-gray-700 mb-4">
+                    Usuarios ({usuariosFiltrados.length})
+                  </h3>
+                  {usuariosFiltrados.length === 0 ? (
+                    <div className="text-center py-12 text-gray-500">
+                      <svg className="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                      </svg>
+                      <p>No se encontraron usuarios</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {usuariosFiltrados.map(user => {
+                        const banLevel = user.ban || 0
+                        const banInfo = {
+                          0: { label: 'Sin restricciones', color: 'green', bgColor: 'bg-green-50', textColor: 'text-green-700', borderColor: 'border-green-200' },
+                          1: { label: 'Sin pedidos', color: 'yellow', bgColor: 'bg-yellow-50', textColor: 'text-yellow-700', borderColor: 'border-yellow-200' },
+                          2: { label: 'Sin pedidos ni contacto', color: 'red', bgColor: 'bg-red-50', textColor: 'text-red-700', borderColor: 'border-red-200' }
+                        }
+                        const info = banInfo[banLevel]
+                        return (
+                          <div key={user.id} className={`border ${info.borderColor} ${info.bgColor} rounded-lg p-4`}>
+                            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                              <div className="flex-1">
+                                <div className="flex items-start gap-3">
+                                  <div className="bg-gray-200 p-3 rounded-full">
+                                    <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                    </svg>
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    <h4 className="font-semibold text-gray-800 truncate">{user.name || 'Sin nombre'}</h4>
+                                    <p className="text-sm text-gray-600 truncate">{user.email}</p>
+                                    <div className="flex items-center gap-2 mt-2">
+                                      <span className={`inline-block px-3 py-1 text-xs font-medium rounded-full ${info.bgColor} ${info.textColor} border ${info.borderColor}`}>
+                                        Nivel {banLevel}: {info.label}
+                                      </span>
+                                      {user.role && (
+                                        <span className="inline-block px-3 py-1 text-xs font-medium rounded-full bg-blue-50 text-blue-700 border border-blue-200">
+                                          {user.role === 'admin' ? 'Admin' : user.role === 'employee' ? 'Empleado' : 'Cliente'}
+                                        </span>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="flex flex-col gap-2 lg:w-48">
+                                <p className="text-xs font-medium text-gray-600 mb-1">Cambiar nivel de ban:</p>
+                                <div className="flex gap-2">
+                                  <button
+                                    onClick={() => cambiarNivelBan(user.id, 0)}
+                                    disabled={banLevel === 0}
+                                    className={`flex-1 px-3 py-2 text-xs font-medium rounded-lg transition ${
+                                      banLevel === 0
+                                        ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                                        : 'bg-green-500 text-white hover:bg-green-600'
+                                    }`}
+                                    title="Sin restricciones"
+                                  >
+                                    0
+                                  </button>
+                                  <button
+                                    onClick={() => cambiarNivelBan(user.id, 1)}
+                                    disabled={banLevel === 1}
+                                    className={`flex-1 px-3 py-2 text-xs font-medium rounded-lg transition ${
+                                      banLevel === 1
+                                        ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                                        : 'bg-yellow-500 text-white hover:bg-yellow-600'
+                                    }`}
+                                    title="Sin pedidos"
+                                  >
+                                    1
+                                  </button>
+                                  <button
+                                    onClick={() => cambiarNivelBan(user.id, 2)}
+                                    disabled={banLevel === 2}
+                                    className={`flex-1 px-3 py-2 text-xs font-medium rounded-lg transition ${
+                                      banLevel === 2
+                                        ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                                        : 'bg-red-500 text-white hover:bg-red-600'
+                                    }`}
+                                    title="Sin pedidos ni contacto"
+                                  >
+                                    2
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        )
+                      })}
                     </div>
                   )}
                 </div>
@@ -2818,7 +3200,7 @@ export default function Admin() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
             <div className="p-6 border-b border-gray-200">
-              <div className="flex justify-between items-center">
+              <div className="flex justify-between items-center mb-4">
                 <div className="flex items-center gap-3">
                   <span className="text-3xl">{categoriaParaAsignar.icon}</span>
                   <div>
@@ -2839,6 +3221,17 @@ export default function Admin() {
                   </svg>
                 </button>
               </div>
+              {productos.filter(p => p.category === categoriaParaAsignar.id).length > 0 && (
+                <button
+                  onClick={() => quitarTodosProductosCategoria(categoriaParaAsignar.id)}
+                  className="w-full px-4 py-2 bg-orange-100 hover:bg-orange-200 text-orange-700 rounded-lg transition font-medium flex items-center justify-center gap-2"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                  Quitar categoría de todos los productos ({productos.filter(p => p.category === categoriaParaAsignar.id).length})
+                </button>
+              )}
             </div>
             <div className="flex-1 overflow-y-auto p-6">
               <div className="mb-4">
@@ -2907,7 +3300,7 @@ export default function Admin() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
             <div className="p-6 border-b border-gray-200">
-              <div className="flex justify-between items-center">
+              <div className="flex justify-between items-center mb-4">
                 <div className="flex items-center gap-3">
                   <span className="text-3xl">{alergenoParaAsignar.icon}</span>
                   <div>
@@ -2928,6 +3321,17 @@ export default function Admin() {
                   </svg>
                 </button>
               </div>
+              {productos.filter(p => p.allergens && p.allergens.some(a => a === alergenoParaAsignar.id || a === alergenoParaAsignar.name)).length > 0 && (
+                <button
+                  onClick={() => quitarTodosProductosAlergeno(alergenoParaAsignar.id)}
+                  className="w-full px-4 py-2 bg-orange-100 hover:bg-orange-200 text-orange-700 rounded-lg transition font-medium flex items-center justify-center gap-2"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                  Quitar alérgeno de todos los productos ({productos.filter(p => p.allergens && p.allergens.some(a => a === alergenoParaAsignar.id || a === alergenoParaAsignar.name)).length})
+                </button>
+              )}
             </div>
             <div className="flex-1 overflow-y-auto p-6">
               <div className="mb-4">
@@ -2994,7 +3398,7 @@ export default function Admin() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
             <div className="p-6 border-b border-gray-200">
-              <div className="flex justify-between items-center">
+              <div className="flex justify-between items-center mb-4">
                 <div className="flex items-center gap-3">
                   <div 
                     className="w-12 h-12 rounded-full flex items-center justify-center"
@@ -3022,6 +3426,17 @@ export default function Admin() {
                   </svg>
                 </button>
               </div>
+              {productos.filter(p => p.tags && p.tags.some(t => t === tagParaAsignar.id || t === tagParaAsignar.name)).length > 0 && (
+                <button
+                  onClick={() => quitarTodosProductosTag(tagParaAsignar.id)}
+                  className="w-full px-4 py-2 bg-orange-100 hover:bg-orange-200 text-orange-700 rounded-lg transition font-medium flex items-center justify-center gap-2"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                  Quitar etiqueta de todos los productos ({productos.filter(p => p.tags && p.tags.some(t => t === tagParaAsignar.id || t === tagParaAsignar.name)).length})
+                </button>
+              )}
             </div>
             <div className="flex-1 overflow-y-auto p-6">
               <div className="mb-4">

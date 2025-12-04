@@ -5,7 +5,13 @@ export default async function handler(req, res) {
   } else if (req.method === 'POST') {
     return crearProductoHandler(req, res)
   } else if (req.method === 'PUT') {
-    return actualizarStockHandler(req, res)
+    // Si viene stockChange, es actualización de stock incremental
+    // Si viene con id y otros campos, es actualización completa
+    if (req.body.stockChange !== undefined) {
+      return actualizarStockHandler(req, res)
+    } else {
+      return actualizarProductoHandler(req, res)
+    }
   } else if (req.method === 'DELETE') {
     return eliminarProductoHandler(req, res)
   } else {
@@ -91,6 +97,53 @@ async function getProductosHandler(req, res) {
     return res.status(500).json({ error: 'Error al obtener productos' })
   }
 }
+async function actualizarProductoHandler(req, res) {
+  try {
+    const producto = req.body
+    const id = producto.id
+
+    if (!id) {
+      return res.status(400).json({ error: 'ID del producto requerido' })
+    }
+
+    const datosProducto = {
+      updated_at: new Date().toISOString()
+    }
+
+    if (producto.name !== undefined) datosProducto.name = producto.name
+    if (producto.description !== undefined) datosProducto.description = producto.description
+    if (producto.price !== undefined) datosProducto.price = producto.price
+    if (producto.image !== undefined) datosProducto.image = producto.image
+    if (producto.barcode !== undefined) datosProducto.barcode = producto.barcode
+    if (producto.allergens !== undefined) datosProducto.allergens = producto.allergens
+    if (producto.tags !== undefined) datosProducto.tags = producto.tags
+    if (producto.min_stock !== undefined) datosProducto.min_stock = producto.min_stock
+    if (producto.stock_quantity !== undefined) datosProducto.stock_quantity = producto.stock_quantity
+    if (producto.is_available !== undefined) datosProducto.is_available = producto.is_available
+    
+    if (producto.category !== undefined) {
+      datosProducto.category = producto.category && producto.category.trim() !== '' ? producto.category : null
+    }
+
+    const { data, error } = await supabase
+      .from('products')
+      .update(datosProducto)
+      .eq('id', id)
+      .select()
+      .single()
+
+    if (error) {
+      console.error('Error actualizar producto:', error)
+      throw error
+    }
+
+    return res.status(200).json(data)
+  } catch (error) {
+    console.error('Error al actualizar producto:', error)
+    return res.status(500).json({ error: 'Error al actualizar producto' })
+  }
+}
+
 async function actualizarStockHandler(req, res) {
   try {
     const { id, stockChange } = req.body

@@ -107,8 +107,8 @@
                     android:layout_height="36dp"
                     android:layout_marginStart="8dp"
                     android:src="@android:drawable/ic_menu_delete"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:contentDescription="Eliminar"
+                    android:background="@android:color/transparent"
+                    android:contentDescription="@string/eliminar_producto"
                     app:tint="#D32F2F" />
             </LinearLayout>
         </LinearLayout>

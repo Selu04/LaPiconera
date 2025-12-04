@@ -16,7 +16,8 @@ import com.lapiconera.proyecto.data.model.Producto
 class ProductosAdapter(
     private var productos: List<Producto>,
     private val onStockChange: (Producto, Int) -> Unit,
-    private val onLongClick: (Producto) -> Unit
+    private val onEditClick: (Producto) -> Unit,
+    private val onDeleteClick: (Producto) -> Unit
 ) : RecyclerView.Adapter<ProductosAdapter.ProductoViewHolder>() {
 
     inner class ProductoViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -25,6 +26,8 @@ class ProductosAdapter(
         val tvStock: TextView = view.findViewById(R.id.tvStock)
         val btnSumar: MaterialButton = view.findViewById(R.id.btnSumar)
         val btnRestar: MaterialButton = view.findViewById(R.id.btnRestar)
+        val btnEditar: android.widget.ImageButton = view.findViewById(R.id.btnEditar)
+        val btnEliminar: android.widget.ImageButton = view.findViewById(R.id.btnEliminar)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ProductoViewHolder {
@@ -83,10 +86,12 @@ class ProductosAdapter(
             }
         }
 
+        holder.btnEditar.setOnClickListener {
+            onEditClick(producto)
+        }
 
-        holder.itemView.setOnLongClickListener {
-            onLongClick(producto)
-            true
+        holder.btnEliminar.setOnClickListener {
+            onDeleteClick(producto)
         }
     }
 

@@ -14,6 +14,33 @@
         android:layout_height="wrap_content"
         android:padding="16dp">
 
+        <!-- Botón Eliminar -->
+        <ImageButton
+            android:id="@+id/btnEliminar"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:background="@android:color/transparent"
+            android:contentDescription="@string/eliminar_producto"
+            android:padding="4dp"
+            android:src="@android:drawable/ic_menu_delete"
+            app:tint="#D32F2F"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <!-- Botón Editar -->
+        <ImageButton
+            android:id="@+id/btnEditar"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginEnd="4dp"
+            android:background="@android:color/transparent"
+            android:contentDescription="@string/editar_producto"
+            android:padding="4dp"
+            android:src="@android:drawable/ic_menu_edit"
+            app:tint="#2196F3"
+            app:layout_constraintEnd_toStartOf="@id/btnEliminar"
+            app:layout_constraintTop_toTopOf="parent" />
+
         <!-- Imagen del Producto -->
         <ImageView
             android:id="@+id/ivProducto"
@@ -38,7 +65,7 @@
             android:textStyle="bold"
             android:maxLines="2"
             android:ellipsize="end"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/btnEditar"
             app:layout_constraintStart_toEndOf="@id/ivProducto"
             app:layout_constraintTop_toTopOf="@id/ivProducto" />
 

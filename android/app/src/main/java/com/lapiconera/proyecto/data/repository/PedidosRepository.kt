@@ -22,14 +22,62 @@ class PedidosRepository(
         }
     }
 
-    suspend fun marcarComoReabastecido(id: String, items: List<Any>): Result<PedidoReabastecimiento> {
+    suspend fun actualizarCantidadesPedido(id: String, items: List<com.lapiconera.proyecto.data.model.ItemReabastecimiento>): Result<Any> {
         return try {
-            val requestBody = mapOf(
-                "id" to id,
-                "items" to items
+            // Convertir items a PedidoItemRequest
+            val itemsRequest = items.map { item ->
+                com.lapiconera.proyecto.data.api.PedidoItemRequest(
+                    id = item.id,
+                    nombre = item.name,
+                    imagen = item.image,
+                    cantidad = item.cantidad
+                )
+            }
+
+            val request = com.lapiconera.proyecto.data.api.ActualizarCantidadesPedidoRequest(
+                id = id,
+                items = itemsRequest
             )
 
-            val response = api.marcarComoReabastecido(requestBody)
+            val response = api.actualizarCantidadesPedido(request)
+
+            if (response.isSuccessful) {
+                // Si items está vacío, la API eliminará el pedido y devolverá un objeto diferente
+                if (items.isEmpty()) {
+                    Result.success("deleted" to true)
+                } else if (response.body() != null) {
+                    Result.success(response.body()!!)
+                } else {
+                    Result.failure(Exception("Respuesta vacía del servidor"))
+                }
+            } else {
+                val errorBody = response.errorBody()?.string()
+                Result.failure(Exception("Error al actualizar cantidades: ${response.code()} - $errorBody"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun marcarComoReabastecido(id: String, items: List<com.lapiconera.proyecto.data.model.ItemReabastecimiento>): Result<PedidoReabastecimiento> {
+        return try {
+            // Convertir items a PedidoItemRequest
+            val itemsRequest = items.map { item ->
+                com.lapiconera.proyecto.data.api.PedidoItemRequest(
+                    id = item.id,
+                    nombre = item.name,
+                    imagen = item.image,
+                    cantidad = item.cantidad
+                )
+            }
+
+            val request = com.lapiconera.proyecto.data.api.MarcarReabastecidoRequest(
+                id = id,
+                items = itemsRequest,
+                status = "completed"
+            )
+
+            val response = api.marcarComoReabastecido(request)
 
             if (response.isSuccessful && response.body() != null) {
                 Result.success(response.body()!!)

@@ -2,7 +2,6 @@ import { supabase } from './supabaseClient'
 export async function enviarContacto(datos) {
   try {
     const { nombre, email, asunto, mensaje } = datos
-    console.log('Datos de contacto recibidos:', datos)
     const { data, error } = await supabase
       .from('contacts')
       .insert([
@@ -93,4 +92,4 @@ export async function actualizarSugerencia(id, cambios) {
     console.error('Error al actualizar sugerencia:', error)
     throw error
   }
-}
+}

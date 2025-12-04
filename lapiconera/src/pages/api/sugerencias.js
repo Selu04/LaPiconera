@@ -96,10 +96,6 @@ async function actualizarSugerencia(req, res) {
         response_message: responseData.message,
         updated_at: new Date().toISOString()
       }
-      console.log('Respuesta guardada (email no enviado - configurar Nodemailer):', {
-        to: responseData.recipientEmail,
-        subject: responseData.subject
-      })
     } else if (status) {
       if (!['pending', 'reviewed', 'approved', 'rejected'].includes(status)) {
         return res.status(400).json({ error: 'Estado no válido' })

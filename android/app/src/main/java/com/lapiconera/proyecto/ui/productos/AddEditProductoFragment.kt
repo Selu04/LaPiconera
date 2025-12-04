@@ -95,6 +95,12 @@ class AddEditProductoFragment : AuthenticatedFragment() {
 
         cameraExecutor = Executors.newSingleThreadExecutor()
 
+        binding.toolbar.setNavigationOnClickListener {
+            findNavController().navigateUp()
+        }
+
+        binding.toolbar.title = if (producto != null) "Editar Producto" else "Nuevo Producto"
+
         setupObservers()
         setupImagePicker()
         setupBarcodeScannerButton()
@@ -250,14 +256,29 @@ class AddEditProductoFragment : AuthenticatedFragment() {
         producto?.let {
             binding.etNombre.setText(it.name)
             binding.etPrecio.setText(it.price.toString())
-            binding.etStock.setText((it.stockQuantity ?: 0).toString())
-            binding.etStockMinimo.setText((it.minStock ?: 5).toString())
+
+            val stockActual = it.stockQuantity ?: 0
+            binding.etStock.setText(stockActual.toString())
+
+            val stockMinimoActual = it.minStock ?: 5
+            binding.etStockMinimo.setText(stockMinimoActual.toString())
+
             binding.etDescripcion.setText(it.description ?: "")
             binding.etBarcode.setText(it.barcode ?: "")
 
             it.category?.let { cat ->
                 val index = categoriasList.indexOfFirst { categoria -> categoria.id == cat }
                 if (index >= 0) binding.spinnerCategoria.setSelection(index)
+            }
+
+            it.tags?.let { productTags ->
+                selectedTags.clear()
+                selectedTags.addAll(productTags)
+            }
+
+            it.allergens?.let { productAllergens ->
+                selectedAlergenos.clear()
+                selectedAlergenos.addAll(productAllergens)
             }
 
             if (!it.image.isNullOrEmpty()) {
@@ -425,25 +446,42 @@ class AddEditProductoFragment : AuthenticatedFragment() {
 
     private fun guardarProducto() {
         val nombre = binding.etNombre.text.toString().trim()
-        val precioStr = binding.etPrecio.text.toString()
-        val stock = binding.etStock.text.toString().toIntOrNull() ?: 0
-        val stockMinimo = binding.etStockMinimo.text.toString().toIntOrNull() ?: 5
-        val descripcion = binding.etDescripcion.text.toString()
-        val barcode = binding.etBarcode.text.toString().ifBlank { null }
+        val precioStr = binding.etPrecio.text.toString().trim()
+        val stockStr = binding.etStock.text.toString().trim()
+        val stockMinimoStr = binding.etStockMinimo.text.toString().trim()
+        val descripcion = binding.etDescripcion.text.toString().trim()
+        val barcode = binding.etBarcode.text.toString().trim().ifBlank { null }
 
-        if (nombre.isBlank() || precioStr.isBlank()) {
-            Toast.makeText(requireContext(), "Completa nombre y precio", Toast.LENGTH_SHORT).show()
+        if (nombre.isBlank()) {
+            Toast.makeText(requireContext(), "El nombre es obligatorio", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        if (precioStr.isBlank()) {
+            Toast.makeText(requireContext(), "El precio es obligatorio", Toast.LENGTH_SHORT).show()
             return
         }
 
         val precio = precioStr.toDoubleOrNull()
         if (precio == null || precio <= 0) {
-            Toast.makeText(requireContext(), "Ingresa un precio válido", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "Ingresa un precio válido mayor a 0", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val stock = if (stockStr.isBlank()) 0 else stockStr.toIntOrNull() ?: 0
+        if (stock < 0) {
+            Toast.makeText(requireContext(), "El stock no puede ser negativo", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val stockMinimo = if (stockMinimoStr.isBlank()) 5 else stockMinimoStr.toIntOrNull() ?: 5
+        if (stockMinimo < 0) {
+            Toast.makeText(requireContext(), "El stock mínimo no puede ser negativo", Toast.LENGTH_SHORT).show()
             return
         }
 
         if (producto == null && imagenBitmap == null) {
-            Toast.makeText(requireContext(), "Selecciona una imagen", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "Selecciona una imagen para el producto", Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -489,21 +527,27 @@ class AddEditProductoFragment : AuthenticatedFragment() {
 
                 val nuevoProductoRequest = ProductoRequest(
                     name = nombre,
-                    description = descripcion.ifBlank { null },
+                    description = if (descripcion.isBlank()) null else descripcion,
                     price = precio,
                     category = categoriaId,
                     image = imagenUrl,
                     stockQuantity = stock,
                     minStock = stockMinimo,
-                    allergens = selectedAlergenos.toList(),
-                    tags = selectedTags.toList(),
+                    allergens = if (selectedAlergenos.isEmpty()) null else selectedAlergenos.toList(),
+                    tags = if (selectedTags.isEmpty()) null else selectedTags.toList(),
                     isAvailable = true,
                     barcode = barcode
                 )
 
+                android.util.Log.d("AddEditProducto", "ProductoRequest creado: $nuevoProductoRequest")
+                android.util.Log.d("AddEditProducto", "Stock: $stock, Stock Mínimo: $stockMinimo")
+                android.util.Log.d("AddEditProducto", "Producto ID: ${producto?.id}, Es edición: ${producto != null}")
+
                 val result = if (producto == null) {
+                    android.util.Log.d("AddEditProducto", "Creando nuevo producto")
                     repository.crearProducto(nuevoProductoRequest)
                 } else {
+                    android.util.Log.d("AddEditProducto", "Actualizando producto ID=${producto!!.id}")
                     repository.actualizarProducto(producto!!.id!!, nuevoProductoRequest)
                 }
 

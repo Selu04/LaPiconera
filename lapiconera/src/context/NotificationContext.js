@@ -10,11 +10,14 @@ export function NotificationProvider({ children }) {
     const id = Date.now()
     const notification = { id, message, type }
     
-    setNotifications(prev => [...prev, notification])
+    setNotifications(prev => {
+      const newNotifications = [...prev, notification]
+      return newNotifications
+    })
     
     setTimeout(() => {
       setNotifications(prev => prev.filter(n => n.id !== id))
-    }, 4000)
+    }, 6000)
   }, [])
 
   const showSuccess = useCallback((message) => showNotification(message, 'success'), [showNotification])
@@ -53,48 +56,74 @@ export function NotificationProvider({ children }) {
     }}>
       {children}
       
-      <div className="fixed top-4 right-4 z-50 space-y-2 pointer-events-none">
+      <div style={{ 
+        position: 'fixed', 
+        top: '16px', 
+        right: '16px', 
+        zIndex: 9999,
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '8px',
+        pointerEvents: 'none'
+      }}>
         {notifications.map(notification => (
           <div
             key={notification.id}
-            className={`pointer-events-auto transform transition-all duration-300 ease-in-out animate-slide-in-right shadow-lg rounded-lg p-4 min-w-[300px] max-w-md ${
-              notification.type === 'success' ? 'bg-green-500 text-white' :
-              notification.type === 'error' ? 'bg-red-500 text-white' :
-              notification.type === 'warning' ? 'bg-yellow-500 text-white' :
-              'bg-blue-500 text-white'
-            }`}
+            style={{
+              animation: 'slideInRight 0.3s ease-out',
+              pointerEvents: 'auto',
+              minWidth: '300px',
+              maxWidth: '400px',
+              padding: '16px',
+              borderRadius: '8px',
+              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+              backgroundColor: 
+                notification.type === 'success' ? '#10b981' :
+                notification.type === 'error' ? '#ef4444' :
+                notification.type === 'warning' ? '#f59e0b' :
+                '#3b82f6',
+              color: '#ffffff'
+            }}
           >
-            <div className="flex items-start gap-3">
-              <div className="flex-shrink-0">
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+              <div style={{ flexShrink: 0 }}>
                 {notification.type === 'success' && (
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg style={{ width: '24px', height: '24px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 )}
                 {notification.type === 'error' && (
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg style={{ width: '24px', height: '24px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 )}
                 {notification.type === 'warning' && (
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg style={{ width: '24px', height: '24px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                   </svg>
                 )}
                 {notification.type === 'info' && (
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg style={{ width: '24px', height: '24px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 )}
               </div>
-              <div className="flex-1">
-                <p className="font-medium">{notification.message}</p>
+              <div style={{ flex: 1 }}>
+                <p style={{ fontWeight: 500, margin: 0 }}>{notification.message}</p>
               </div>
               <button
                 onClick={() => removeNotification(notification.id)}
-                className="flex-shrink-0 hover:opacity-70 transition"
+                style={{ 
+                  flexShrink: 0, 
+                  background: 'none', 
+                  border: 'none', 
+                  cursor: 'pointer',
+                  padding: 0,
+                  color: '#ffffff',
+                  opacity: 0.9
+                }}
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg style={{ width: '20px', height: '20px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
@@ -104,9 +133,9 @@ export function NotificationProvider({ children }) {
       </div>
 
       {confirmDialog && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 animate-fade-in">
-          <div className="bg-white rounded-lg max-w-md w-full shadow-xl animate-scale-in">
-            <div className="p-6">
+        <div className="fixed inset-0 flex items-center justify-center p-4" style={{ backgroundColor: 'rgba(0, 0, 0, 0.75)', animation: 'fadeIn 0.2s ease-out', zIndex: 99999 }}>
+          <div className="bg-white rounded-lg max-w-md w-full shadow-2xl" style={{ animation: 'scaleIn 0.2s ease-out' }}>
+            <div className="p-6 bg-white rounded-t-lg">
               <div className="flex items-start gap-4">
                 <div className={`flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center ${
                   confirmDialog.type === 'danger' ? 'bg-red-100' :
@@ -139,20 +168,29 @@ export function NotificationProvider({ children }) {
                 </div>
               </div>
             </div>
-            <div className="bg-gray-50 px-6 py-4 flex gap-3 rounded-b-lg">
+            <div className="px-6 py-4 flex gap-3 rounded-b-lg" style={{ backgroundColor: '#f9fafb' }}>
               <button
+                type="button"
                 onClick={confirmDialog.onCancel}
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition font-medium text-gray-700"
+                className="flex-1 px-4 py-2 rounded-lg transition font-semibold"
+                style={{ 
+                  backgroundColor: '#ffffff',
+                  border: '2px solid #d1d5db',
+                  color: '#374151'
+                }}
               >
                 {confirmDialog.cancelText || 'Cancelar'}
               </button>
               <button
+                type="button"
                 onClick={confirmDialog.onConfirm}
-                className={`flex-1 px-4 py-2 rounded-lg transition font-medium text-white ${
-                  confirmDialog.type === 'danger' ? 'bg-red-600 hover:bg-red-700' :
-                  confirmDialog.type === 'warning' ? 'bg-yellow-600 hover:bg-yellow-700' :
-                  'bg-blue-600 hover:bg-blue-700'
-                }`}
+                className="flex-1 px-4 py-2 rounded-lg transition font-semibold"
+                style={{
+                  backgroundColor: confirmDialog.type === 'danger' ? '#dc2626' :
+                                   confirmDialog.type === 'warning' ? '#d97706' :
+                                   '#2563eb',
+                  color: '#ffffff'
+                }}
               >
                 {confirmDialog.confirmText || 'Confirmar'}
               </button>
@@ -162,7 +200,7 @@ export function NotificationProvider({ children }) {
       )}
 
       <style jsx global>{`
-        @keyframes slide-in-right {
+        @keyframes slideInRight {
           from {
             transform: translateX(100%);
             opacity: 0;
@@ -172,7 +210,7 @@ export function NotificationProvider({ children }) {
             opacity: 1;
           }
         }
-        @keyframes fade-in {
+        @keyframes fadeIn {
           from {
             opacity: 0;
           }
@@ -180,7 +218,7 @@ export function NotificationProvider({ children }) {
             opacity: 1;
           }
         }
-        @keyframes scale-in {
+        @keyframes scaleIn {
           from {
             transform: scale(0.95);
             opacity: 0;
@@ -189,15 +227,6 @@ export function NotificationProvider({ children }) {
             transform: scale(1);
             opacity: 1;
           }
-        }
-        .animate-slide-in-right {
-          animation: slide-in-right 0.3s ease-out;
-        }
-        .animate-fade-in {
-          animation: fade-in 0.2s ease-out;
-        }
-        .animate-scale-in {
-          animation: scale-in 0.2s ease-out;
         }
       `}</style>
     </NotificationContext.Provider>

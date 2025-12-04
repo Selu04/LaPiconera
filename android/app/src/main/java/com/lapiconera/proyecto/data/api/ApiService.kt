@@ -60,8 +60,11 @@ interface ApiService {
     @POST("reabastecimiento")
     suspend fun crearPedidoReabastecimiento(@Body request: Map<String, Any>): Response<com.lapiconera.proyecto.data.model.PedidoReabastecimiento>
 
+    @retrofit2.http.PATCH("reabastecimiento")
+    suspend fun actualizarCantidadesPedido(@Body request: ActualizarCantidadesPedidoRequest): Response<com.lapiconera.proyecto.data.model.PedidoReabastecimiento>
+
     @PUT("reabastecimiento")
-    suspend fun marcarComoReabastecido(@Body request: Map<String, Any>): Response<com.lapiconera.proyecto.data.model.PedidoReabastecimiento>
+    suspend fun marcarComoReabastecido(@Body request: MarcarReabastecidoRequest): Response<com.lapiconera.proyecto.data.model.PedidoReabastecimiento>
 }
 
 // Requests específicos
@@ -74,9 +77,9 @@ data class ProductoUpdateRequest(
     val category: String?,
     val allergens: List<String>?,
     val tags: List<String>?,
-    val stock_quantity: Int?,
-    val min_stock: Int?,
-    val is_available: Boolean?,
+    val stock_quantity: Int,
+    val min_stock: Int,
+    val is_available: Boolean,
     val barcode: String?
 )
 
@@ -98,5 +101,23 @@ data class ImageUploadResponse(
     val success: Boolean,
     val url: String,
     val fileName: String
+)
+
+data class PedidoItemRequest(
+    val id: String,
+    val nombre: String,
+    val imagen: String?,
+    val cantidad: Int
+)
+
+data class ActualizarCantidadesPedidoRequest(
+    val id: String,
+    val items: List<PedidoItemRequest>
+)
+
+data class MarcarReabastecidoRequest(
+    val id: String,
+    val items: List<PedidoItemRequest>,
+    val status: String = "completed"
 )
 

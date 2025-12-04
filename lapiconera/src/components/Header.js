@@ -48,6 +48,19 @@ export default function Header() {
       router.push('/login')
       return
     }
+
+    if (usuario.ban === 1) {
+      showError('Estás baneado y no puedes realizar pedidos, solo ver el catálogo. Si piensas que esto ha sido un error, por favor, comunícate con nosotros mediante el apartado de contacto o en nuestro negocio. Gracias.')
+      setCarritoAbierto(false)
+      return
+    }
+
+    if (usuario.ban === 2) {
+      showError('Estás baneado y no puedes realizar pedidos, solo ver el catálogo. Si piensas que esto ha sido un error, por favor, acude a nuestro negocio. Gracias.')
+      setCarritoAbierto(false)
+      return
+    }
+
     if (items.length === 0) {
       showWarning('El carrito está vacío')
       return

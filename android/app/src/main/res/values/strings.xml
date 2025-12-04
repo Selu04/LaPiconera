@@ -8,4 +8,8 @@
     <string name="password_hint">Contraseña</string>
     <string name="login_button">Iniciar Sesión</string>
     <string name="app_logo">Logo de la aplicación</string>
+
+    <!-- Productos -->
+    <string name="editar_producto">Editar producto</string>
+    <string name="eliminar_producto">Eliminar producto</string>
 </resources>

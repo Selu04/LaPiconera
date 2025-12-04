@@ -6,7 +6,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -125,19 +124,55 @@ class DetallePedidoFragment : AuthenticatedFragment() {
             return
         }
 
-        if (itemsEditados.isEmpty()) {
-            Toast.makeText(requireContext(), "El pedido no puede estar vacío", Toast.LENGTH_SHORT).show()
-            return
+        val mensaje = if (itemsEditados.isEmpty()) {
+            "¿Eliminar este pedido?\n\nNo tiene productos."
+        } else {
+            val totalUnidades = itemsEditados.sumOf { it.cantidad }
+            "¿Guardar los cambios realizados?\n\n${itemsEditados.size} producto(s) - $totalUnidades unidades"
         }
 
         AlertDialog.Builder(requireContext())
-            .setTitle("Guardar Cambios")
-            .setMessage("Los cambios se han guardado localmente.\n\nNota: Para guardar en el servidor, implementa el endpoint PUT en la API.")
-            .setPositiveButton("Entendido") { _, _ ->
-                pedidoModificado = false
-                Toast.makeText(requireContext(), "Cambios guardados", Toast.LENGTH_SHORT).show()
+            .setTitle(if (itemsEditados.isEmpty()) "Eliminar Pedido" else "Guardar Cambios")
+            .setMessage(mensaje)
+            .setPositiveButton(if (itemsEditados.isEmpty()) "Eliminar" else "Guardar") { _, _ ->
+                enviarCambiosAlServidor()
             }
+            .setNegativeButton("Cancelar", null)
             .show()
+    }
+
+    private fun enviarCambiosAlServidor() {
+        lifecycleScope.launch {
+            args.pedido.id?.let { id ->
+                val result = repository.actualizarCantidadesPedido(id, itemsEditados)
+
+                result.onSuccess { response ->
+                    pedidoModificado = false
+
+                    // Si la respuesta indica que el pedido fue eliminado
+                    if (response is Pair<*, *> && response.first == "deleted") {
+                        Toast.makeText(
+                            requireContext(),
+                            "Pedido eliminado (sin productos)",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        findNavController().popBackStack()
+                    } else {
+                        Toast.makeText(
+                            requireContext(),
+                            "Cambios guardados exitosamente",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }.onFailure { error ->
+                    Toast.makeText(
+                        requireContext(),
+                        "Error al guardar: ${error.message}",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            }
+        }
     }
 
     private fun confirmarCompletarPedido() {

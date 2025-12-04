@@ -18,7 +18,7 @@ export const UserProvider = ({ children }) => {
         }
         const { data: perfil } = await supabase
           .from('users')
-          .select('id, email, name, role')
+          .select('id, email, name, role, ban')
           .eq('id', user.id)
           .single()
         if (mounted) {
@@ -26,7 +26,8 @@ export const UserProvider = ({ children }) => {
             id: user.id,
             email: user.email,
             name: perfil?.name || user.email,
-            role: perfil?.role || 'customer'
+            role: perfil?.role || 'customer',
+            ban: perfil?.ban || 0
           })
           setLoading(false)
         }

@@ -1,6 +1,5 @@
 package com.lapiconera.proyecto.data.api
 
-import com.lapiconera.proyecto.util.Constantes
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit

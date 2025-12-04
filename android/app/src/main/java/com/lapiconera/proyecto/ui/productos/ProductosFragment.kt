@@ -106,7 +106,15 @@ class ProductosFragment : AuthenticatedFragment() {
         adapter = ProductosAdapter(
             productos = listOf(),
             onStockChange = { producto, nuevoStock -> actualizarStock(producto, nuevoStock) },
-            onLongClick = { producto -> mostrarDialogoOpciones(producto) }
+            onEditClick = { producto ->
+                Log.d(TAG, "Editar producto ID=${producto.id}")
+                val action = ProductosFragmentDirections.actionProductosFragmentToAddEditProductoFragment(producto)
+                findNavController().navigate(action)
+            },
+            onDeleteClick = { producto ->
+                Log.d(TAG, "Eliminar producto ID=${producto.id}")
+                confirmarEliminarProducto(producto)
+            }
         )
 
         binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
@@ -145,11 +153,9 @@ class ProductosFragment : AuthenticatedFragment() {
             }
         })
 
-        // Long press en SearchView para escanear código de barras
-        binding.searchView.setOnLongClickListener {
-            Log.d(TAG, "Long press en SearchView - Iniciando escáner de código de barras")
+        binding.btnScanSearch.setOnClickListener {
+            Log.d(TAG, "Click en botón escanear - Iniciando escáner de código de barras")
             solicitarPermisoYEscanear()
-            true
         }
 
         binding.etStockMin.addTextChangedListener(object : android.text.TextWatcher {
@@ -279,25 +285,6 @@ class ProductosFragment : AuthenticatedFragment() {
         }
     }
 
-    private fun mostrarDialogoOpciones(producto: Producto) {
-        val opciones = arrayOf("Editar", "Eliminar")
-        androidx.appcompat.app.AlertDialog.Builder(requireContext())
-            .setTitle("Opciones")
-            .setItems(opciones) { _, which ->
-                when (which) {
-                    0 -> {
-                        Log.d(TAG, "Editar producto ID=${producto.id}")
-                        val action = ProductosFragmentDirections.actionProductosFragmentToAddEditProductoFragment(producto)
-                        findNavController().navigate(action)
-                    }
-                    1 -> {
-                        Log.d(TAG, "Eliminar producto ID=${producto.id}")
-                        confirmarEliminarProducto(producto)
-                    }
-                }
-            }
-            .show()
-    }
 
     private fun confirmarEliminarProducto(producto: Producto) {
         androidx.appcompat.app.AlertDialog.Builder(requireContext())

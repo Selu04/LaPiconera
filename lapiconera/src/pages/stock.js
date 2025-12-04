@@ -174,6 +174,27 @@ export default function Stock() {
       showError('Error al crear el pedido')
     }
   }
+  const actualizarCantidadesPedido = async (pedidoId, items) => {
+    try {
+      const res = await fetch('/api/reabastecimiento', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: pedidoId, items })
+      })
+      if (res.ok) {
+        showSuccess('Cantidades actualizadas correctamente')
+        await cargarPedidosReabastecimiento()
+        return true
+      } else {
+        showError('Error al actualizar las cantidades')
+        return false
+      }
+    } catch (error) {
+      console.error('Error:', error)
+      showError('Error al actualizar las cantidades')
+      return false
+    }
+  }
   const marcarComoReabastecido = async (pedidoId, items) => {
     const confirmed = await showConfirm({
       title: 'Confirmar Reabastecimiento',
@@ -187,7 +208,7 @@ export default function Stock() {
       const res = await fetch('/api/reabastecimiento', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: pedidoId, items })
+        body: JSON.stringify({ id: pedidoId, items, status: 'completed' })
       })
       if (res.ok) {
         showSuccess('Stock actualizado correctamente')
@@ -510,6 +531,9 @@ export default function Stock() {
                       key={pedido.id}
                       pedido={pedido}
                       marcarComoReabastecido={marcarComoReabastecido}
+                      actualizarCantidadesPedido={actualizarCantidadesPedido}
+                      showConfirm={showConfirm}
+                      showWarning={showWarning}
                     />
                   ))
                 )}
@@ -521,18 +545,44 @@ export default function Stock() {
     </>
   )
 }
-function PedidoReabastecimientoCard({ pedido, marcarComoReabastecido }) {
+function PedidoReabastecimientoCard({ pedido, marcarComoReabastecido, actualizarCantidadesPedido, showConfirm, showWarning }) {
   const [items, setItems] = useState(pedido.items)
   const [editando, setEditando] = useState(false)
-  const actualizarCantidad = (itemId, nuevaCantidad) => {
+  const actualizarCantidad = async (itemId, nuevaCantidad) => {
     if (nuevaCantidad <= 0) {
-      if (confirm('¿Eliminar este producto del pedido?')) {
+      const producto = items.find(item => item.id === itemId)
+      const confirmar = await showConfirm({
+        title: 'Eliminar Producto',
+        message: `¿Estás seguro de eliminar "${producto?.nombre}" del pedido?`,
+        confirmText: 'Eliminar',
+        cancelText: 'Cancelar',
+        type: 'warning'
+      })
+      if (confirmar) {
         setItems(items.filter(item => item.id !== itemId))
       }
     } else {
       setItems(items.map(item =>
         item.id === itemId ? { ...item, cantidad: nuevaCantidad } : item
       ))
+    }
+  }
+  const handleGuardarCambios = async () => {
+    if (items.length === 0) {
+      const confirmar = await showConfirm({
+        title: 'Pedido Vacío',
+        message: 'No hay productos en el pedido. ¿Deseas eliminar el pedido completo?',
+        confirmText: 'Eliminar Pedido',
+        cancelText: 'Cancelar',
+        type: 'warning'
+      })
+      if (!confirmar) {
+        return
+      }
+    }
+    const exito = await actualizarCantidadesPedido(pedido.id, items)
+    if (exito) {
+      setEditando(false)
     }
   }
   const handleMarcarReabastecido = () => {
@@ -644,6 +694,17 @@ function PedidoReabastecimientoCard({ pedido, marcarComoReabastecido }) {
                 <p className="text-sm text-gray-600">Cantidad: {item.cantidad} unidades</p>
               )}
             </div>
+            {pedido.status === 'pending' && editando && (
+              <button
+                onClick={() => actualizarCantidad(item.id, 0)}
+                className="text-red-500 hover:text-red-700"
+                title="Eliminar producto"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+              </button>
+            )}
           </div>
         ))}
       </div>
@@ -685,7 +746,7 @@ function PedidoReabastecimientoCard({ pedido, marcarComoReabastecido }) {
                 Cancelar
               </button>
               <button
-                onClick={() => setEditando(false)}
+                onClick={handleGuardarCambios}
                 className="flex-1 bg-blue-500 text-white py-2 rounded-lg font-semibold hover:bg-blue-600 transition flex items-center justify-center gap-2"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

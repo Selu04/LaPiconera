@@ -25,10 +25,10 @@ data class ProductoRequest(
     val tags: List<String>? = null,
 
     @SerializedName("stock_quantity")
-    val stockQuantity: Int? = 0,
+    val stockQuantity: Int = 0,
 
     @SerializedName("min_stock")
-    val minStock: Int? = 0,
+    val minStock: Int = 5,
 
     @SerializedName("is_available")
     val isAvailable: Boolean? = true,

@@ -9,7 +9,15 @@ export default async function handler(req, res) {
   } else if (req.method === 'POST') {
     return crearPedidoReabastecimiento(req, res)
   } else if (req.method === 'PUT') {
-    return marcarComoReabastecido(req, res)
+    // Si viene status, es marcar como reabastecido
+    // Si solo vienen items, es actualizar cantidades
+    if (req.body.status) {
+      return marcarComoReabastecido(req, res)
+    } else {
+      return actualizarCantidadesPedido(req, res)
+    }
+  } else if (req.method === 'PATCH') {
+    return actualizarCantidadesPedido(req, res)
   } else {
     return res.status(405).json({ error: 'Método no permitido' })
   }
@@ -47,6 +55,75 @@ async function crearPedidoReabastecimiento(req, res) {
     return res.status(500).json({ error: 'Error al crear pedido' })
   }
 }
+async function actualizarCantidadesPedido(req, res) {
+  try {
+    const { id, items } = req.body
+
+    if (!id || !items) {
+      console.error('Datos incompletos:', { id, items })
+      return res.status(400).json({ error: 'ID y items son requeridos' })
+    }
+
+    if (!Array.isArray(items)) {
+      console.error('Items no es un array:', items)
+      return res.status(400).json({ error: 'Items debe ser un array' })
+    }
+
+    // Si no hay items, eliminar el pedido directamente
+    if (items.length === 0) {
+      console.log('No hay items, eliminando pedido:', id)
+      const { error: deleteError } = await supabase
+        .from('restocking_orders')
+        .delete()
+        .eq('id', id)
+        .eq('status', 'pending')
+
+      if (deleteError) {
+        console.error('Error al eliminar pedido vacío:', deleteError)
+        return res.status(500).json({ error: 'Error al eliminar pedido vacío' })
+      }
+
+      console.log('Pedido eliminado exitosamente')
+      return res.status(200).json({ deleted: true, message: 'Pedido eliminado porque no tenía productos' })
+    }
+
+    // Verificar que los items tengan la estructura correcta
+    const itemsValidos = items.every(item => item.id && item.nombre && item.cantidad >= 0)
+    if (!itemsValidos) {
+      console.error('Items con estructura incorrecta:', items)
+      return res.status(400).json({ error: 'Items tienen estructura incorrecta. Cada item debe tener: id, nombre, cantidad' })
+    }
+
+    console.log('Actualizando pedido:', id, 'con items:', items)
+
+    const { data: pedido, error } = await supabase
+      .from('restocking_orders')
+      .update({ 
+        items
+      })
+      .eq('id', id)
+      .eq('status', 'pending')
+      .select()
+      .single()
+
+    if (error) {
+      console.error('Error de Supabase al actualizar cantidades:', error)
+      return res.status(500).json({ error: error.message || 'Error al actualizar cantidades en la base de datos' })
+    }
+
+    if (!pedido) {
+      console.error('Pedido no encontrado o no está pendiente:', id)
+      return res.status(404).json({ error: 'Pedido no encontrado o no está pendiente' })
+    }
+
+    console.log('Pedido actualizado exitosamente:', pedido)
+    return res.status(200).json(pedido)
+  } catch (error) {
+    console.error('Error general al actualizar cantidades:', error)
+    return res.status(500).json({ error: error.message || 'Error al actualizar cantidades' })
+  }
+}
+
 async function marcarComoReabastecido(req, res) {
   try {
     const { id, items } = req.body
@@ -75,4 +152,4 @@ async function marcarComoReabastecido(req, res) {
     console.error('Error:', error)
     return res.status(500).json({ error: 'Error al actualizar' })
   }
-}
+}

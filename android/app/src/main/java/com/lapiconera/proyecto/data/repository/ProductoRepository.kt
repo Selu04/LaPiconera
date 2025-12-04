@@ -115,6 +115,8 @@ class ProductoRepository(
      */
     suspend fun actualizarProducto(id: String, producto: ProductoRequest): Result<Producto> {
         return try {
+            android.util.Log.d("ProductoRepository", "Actualizando producto ID=$id con datos: $producto")
+
             val request = ProductoUpdateRequest(
                 id = id,
                 name = producto.name,
@@ -126,18 +128,23 @@ class ProductoRepository(
                 tags = producto.tags,
                 stock_quantity = producto.stockQuantity,
                 min_stock = producto.minStock,
-                is_available = producto.isAvailable,
+                is_available = true,
                 barcode = producto.barcode
             )
 
+            android.util.Log.d("ProductoRepository", "Request enviado: $request")
             val response = api.actualizarProducto(request)
 
             if (response.isSuccessful && response.body() != null) {
+                android.util.Log.d("ProductoRepository", "Producto actualizado exitosamente: ${response.body()}")
                 Result.success(response.body()!!)
             } else {
-                Result.failure(Exception("Error al actualizar producto: ${response.code()}"))
+                val errorBody = response.errorBody()?.string()
+                android.util.Log.e("ProductoRepository", "Error al actualizar: ${response.code()} - $errorBody")
+                Result.failure(Exception("Error al actualizar producto: ${response.code()} - $errorBody"))
             }
         } catch (e: Exception) {
+            android.util.Log.e("ProductoRepository", "Excepción al actualizar producto", e)
             Result.failure(e)
         }
     }

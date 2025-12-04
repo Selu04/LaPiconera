@@ -15,7 +15,7 @@
         android:elevation="4dp"
         app:title="TPV - Gestión de Stock"
         app:titleTextColor="#212121"
-        app:navigationIcon="@android:drawable/ic_menu_revert"
+        app:navigationIcon="@drawable/ic_arrow_back"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

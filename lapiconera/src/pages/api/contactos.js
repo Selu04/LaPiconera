@@ -63,11 +63,6 @@ async function actualizarContacto(req, res) {
         response_message: responseData.message,
         leido: true 
       }
-      
-      console.log('Respuesta guardada (email no enviado - configurar Nodemailer):', {
-        to: responseData.recipientEmail,
-        subject: responseData.subject
-      })
     } else if (leido !== undefined) {
       updateData = { leido }
     } else {

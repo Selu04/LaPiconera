@@ -1060,8 +1060,7 @@ export default function Admin() {
           from_name: 'La Piconera',
           reply_to: 'noreply@tiendalapiconera.com',
           subject: formRespuesta.subject,
-          message: formRespuesta.message,
-          formatted_message: formRespuesta.message.replace(/<br\s*\/?>/gi, '\n')
+          message: formRespuesta.message
         },
         'kJFppQCsbhYLuns4C'
       )
@@ -1154,8 +1153,8 @@ export default function Admin() {
           from_name: 'La Piconera',
           reply_to: 'noreply@tiendalapiconera.com',
           subject: formRespuesta.subject,
-          message: formRespuesta.message,
-          formatted_message: formRespuesta.message.replace(/<br\s*\/?>/gi, '\n')        },
+          message: formRespuesta.message
+        },
         'kJFppQCsbhYLuns4C'
       )
       await actualizarContacto(contactoRespondiendo.id, null, 'respond', formRespuesta)

@@ -1061,7 +1061,7 @@ export default function Admin() {
           reply_to: 'noreply@tiendalapiconera.com',
           subject: formRespuesta.subject,
           message: formRespuesta.message,
-          formatted_message: formRespuesta.message.replace(/\n/g, '<br>')
+          formatted_message: formRespuesta.message
         },
         'kJFppQCsbhYLuns4C'
       )
@@ -1155,7 +1155,7 @@ export default function Admin() {
           reply_to: 'noreply@tiendalapiconera.com',
           subject: formRespuesta.subject,
           message: formRespuesta.message,
-          formatted_message: formRespuesta.message.replace(/\n/g, '<br>')
+          formatted_message: formRespuesta.message
         },
         'kJFppQCsbhYLuns4C'
       )

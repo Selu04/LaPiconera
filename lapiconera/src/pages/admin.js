@@ -1061,7 +1061,7 @@ export default function Admin() {
           reply_to: 'noreply@tiendalapiconera.com',
           subject: formRespuesta.subject,
           message: formRespuesta.message,
-          formatted_message: formRespuesta.message
+          formatted_message: formRespuesta.message.replace(/<br\s*\/?>/gi, '\n')
         },
         'kJFppQCsbhYLuns4C'
       )
@@ -1155,8 +1155,7 @@ export default function Admin() {
           reply_to: 'noreply@tiendalapiconera.com',
           subject: formRespuesta.subject,
           message: formRespuesta.message,
-          formatted_message: formRespuesta.message
-        },
+          formatted_message: formRespuesta.message.replace(/<br\s*\/?>/gi, '\n')        },
         'kJFppQCsbhYLuns4C'
       )
       await actualizarContacto(contactoRespondiendo.id, null, 'respond', formRespuesta)
